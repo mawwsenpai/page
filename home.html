@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda Novel</title>
+    
+    <link rel="stylesheet" href="css/style.css"> 
+    <link rel="stylesheet" href="https://mawwsenpai.github.io/maww-library/style.css"> 
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap' rel='stylesheet'/>
+</head>
+<body class="no-copy" oncontextmenu="return false;">
+
+    <main class="app-main-content">
+        <header class='main-header'>
+            <div class='main-header-left'>
+                <button id="settings-toggle-btn" class='mobile-menu-toggle' title='Pengaturan Tampilan'><i class='fas fa-bars'></i></button>
+                <h1 class='main-title'>Zona arena Dewasa</h1>
+            </div>
+            </header>
+
+        <div class="blog-section" id="latest-post-section">
+            <h2 class="section-title">Terbaru ✨</h2>
+            <div id="latest-post-container">
+                <div class="skeleton-loader-card large"></div>
+            </div>
+        </div>
+
+        <div class="blog-section">
+             <h2 class="section-title">Jelajahi Kategori 📚</h2>
+            <div class='category-list-container'>
+                <div class='category-list-grid' id='category-list-container'>
+                    <div class="skeleton-loader-card small"></div>
+                    <div class="skeleton-loader-card small"></div>
+                    <div class="skeleton-loader-card small"></div>
+                    <div class="skeleton-loader-card small"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="settings-panel-container"></div>
+    <script src="https://mawwsenpai.github.io/maww-library/script.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/script.js" defer></script>
+</body>
+</html>
