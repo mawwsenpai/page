@@ -1,10 +1,7 @@
-// ISI LENGKAP UNTUK FILE: js/script.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    
-    /**
-     * Membuat kartu besar untuk postingan terbaru (16:9)
-     */
+  if (!window.MawwTheme) {
+      return;
+  }
     function createLatestPostCard(post) {
         const imageUrl = (post.images && post.images.length > 0) ?
             post.images[0].url.replace(/\/s\d+(-c)?\//, '/w800-h450-c/') :
@@ -23,9 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
     }
     
-    /**
-     * Membuat kartu kecil untuk kategori (2:3) dengan judul label
-     */
     function createCategoryCard(post, label) {
         const imageUrl = (post.images && post.images.length > 0) ?
             post.images[0].url.replace(/\/s\d+(-c)?\//, '/w200-h300-c/') :
@@ -43,12 +37,37 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
     
-    /**
-     * Mengambil dan menampilkan HANYA SATU postingan terbaru.
-     */
+    function createLatestPostPlaceholder() {
+        return `
+            <div class="latest-post-card skeleton">
+                <div class="latest-post-cover skeleton-img"></div>
+                <div class="latest-post-info">
+                    <h3 class="latest-post-title skeleton-text"></h3>
+                </div>
+            </div>`;
+    }
+    
+    function createCategoryCardPlaceholder() {
+        return `
+            <div class="category-card skeleton">
+                <div class="category-card-cover skeleton-img"></div>
+                <div class="category-card-title skeleton-text"></div>
+            </div>`;
+    }
+    
+    function createCategoryListPlaceholder(count = 8) {
+        let placeholders = '';
+        for (let i = 0; i < count; i++) {
+            placeholders += createCategoryCardPlaceholder();
+        }
+        return placeholders;
+    }
+    
     async function renderLatestPost() {
         const container = document.getElementById('latest-post-container');
         if (!container) return;
+        container.innerHTML = createLatestPostPlaceholder();
+        
         const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${config.blogId}/posts?key=${config.apiKey}&fetchImages=true&maxResults=1`;
         
         try {
@@ -59,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = `<p>Tidak ada postingan terbaru.</p>`;
                 return;
             }
+            // 2. Ganti placeholder dengan konten asli setelah data didapat
             container.innerHTML = createLatestPostCard(data.items[0]);
         } catch (error) {
             console.error(`Gagal memuat postingan terbaru:`, error);
@@ -66,12 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    /**
-     * Mengambil 1 postingan dari setiap label terlama untuk ditampilkan sebagai kategori.
-     */
     async function renderCategoryList() {
         const container = document.getElementById('category-list-container');
         if (!container) return;
+        container.innerHTML = createCategoryListPlaceholder(8); 
         
         try {
             const allPostsUrl = `https://www.googleapis.com/blogger/v3/blogs/${config.blogId}/posts?key=${config.apiKey}&maxResults=200&fetchImages=true&orderBy=published`;
@@ -81,7 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data.items) throw new Error("Gagal mengambil daftar postingan.");
             
             const labelMap = new Map();
-            data.items.forEach(post => {
+            const reversedItems = data.items.reverse();
+            
+            reversedItems.forEach(post => {
                 if (post.labels) {
                     post.labels.forEach(label => {
                         if (!labelMap.has(label)) {
@@ -103,11 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- INISIALISASI HALAMAN UTAMA ---
     function initializeHomePage() {
         renderLatestPost();
         renderCategoryList();
-        initializeTheme();
     }
     
     initializeHomePage();
