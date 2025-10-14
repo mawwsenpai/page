@@ -30,7 +30,7 @@
     --interactive-active-bg: rgba(213, 193, 146, 0.2);
     
     /* Variabel untuk Glassmorphism */
-    --glass-bg: rgba(var(--bg-secondary-rgb), 0.);
+    --glass-bg: rgba(var(--bg-secondary-rgb), 0.5);
     --glass-blur: 10px;
     
     /* Variabel Lainnya */
@@ -715,6 +715,48 @@ body {
     color: var(--accent-color);
     border-color: var(--accent-color);
     transform: translateX(5px);
+}
+
+/* == Daftar Postingan Setelah Tag Dipilih (Versi Aesthetic) == */
+.panel-post-list-container {
+    display: flex;
+    flex-direction: column; /* Mengatur item secara vertikal */
+    gap: 8px; /* Jarak modern antar item, pengganti margin-bottom */
+    padding: 0 10px; /* Sedikit penyesuaian padding */
+}
+
+.panel-post-item {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Jarak antara gambar dan teks */
+    padding: 10px;
+    text-decoration: none;
+    border-radius: var(--border-radius-md); /* Menggunakan variabel border-radius */
+    border: 1px solid transparent; /* Trik agar tidak goyang saat hover */
+    transition: var(--transition-fast); /* Menggunakan variabel transisi */
+}
+
+.panel-post-item:hover {
+    background-color: var(--interactive-hover-bg); /* Warna hover dari tema */
+    border-color: var(--border-color); /* Menampilkan border saat hover */
+    transform: translateX(5px); /* Efek geser kecil saat hover */
+}
+
+.panel-post-item img {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: var(--border-radius-sm); /* Konsisten dengan tema */
+    flex-shrink: 0;
+    background-color: var(--border-color); /* Warna placeholder sesuai tema */
+}
+
+.panel-post-item-title {
+    font-family: var(--font-reading); /* Menggunakan variabel font */
+    font-size: 1rem; /* Sedikit lebih besar agar mudah dibaca */
+    font-weight: 500;
+    color: var(--text-primary); /* Warna teks utama dari tema */
+    line-height: 1.4;
 }
 
 /* Loader & Utilitas */

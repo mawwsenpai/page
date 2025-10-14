@@ -1,5 +1,6 @@
 const config = {
   blogId: '1753829636995064210',
+  clientId: '162356562012-ts06rfqmcajg8v88qop424kqq3cic4c3.apps.googleusercontent.com',
   apiKey: 'AIzaSyBvWOW46b0zJ3zmUp4fSUyaw1VnNvxCF60', 
 };
 
