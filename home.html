@@ -1,48 +1,107 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="gelap">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda Novel</title>
+    <title>Dutta Story_</title>
     
     <link rel="stylesheet" href="css/style.css"> 
     <link rel="stylesheet" href="https://mawwsenpai.github.io/maww-library/style.css"> 
+    
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
-    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap' rel='stylesheet'/>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:wght@400;500;700&display=swap' rel='stylesheet'/>
 </head>
 <body class="no-copy" oncontextmenu="return false;">
+
+ <aside class='app-sidebar' id='app-sidebar'>
+    
+    <div class='sidebar-header'>
+        <div>
+            <h2 class='sidebar-title'>Novel Revisi Pro</h2>
+            <p class='sidebar-version'>v50.5.0.7 By-MawwSenpai_</p>
+        </div>
+        <button class='modal-close-btn close-sidebar-btn' onclick='document.getElementById("app-sidebar").classList.remove("is-open")' title="Tutup Menu">&times;</button>
+    </div>
+    
+    <div class="sidebar-content" id="sidebar-scroll-content">
+        
+        <div class='control-group'>
+            <h3 class='control-group-title'>Akun</h3>
+            <ul class='nav-list' id='account-nav-list'>
+                <li><a class='nav-link' href='login.html'><i class='fas fa-sign-in-alt'></i><span>Login / Daftar</span></a></li>
+            </ul>
+        </div>
+        
+        <div class='control-group'>
+            <h3 class='control-group-title'>Navigasi</h3>
+            <ul class='nav-list'>
+                <li><a class='nav-link active' href='#'><i class='fas fa-home'></i><span>Beranda</span></a></li>
+                <li><a class='nav-link' href='../dashboard/main.html'><i class='fas fa-rss'></i><span>Lainnya</span></a></li>
+            </ul>
+        </div>
+        
+        <div class="control-group" id="settings-panel-container">
+            <h3 class="control-group-title">Pengaturan Tampilan</h3>
+            
+            <div class='setting-group'>
+                <h4 class='setting-group-title'>Pilihan Tema</h4>
+                <div class='options-container scrollable-setting' id='theme-options-container'>
+                </div>
+            </div>
+            
+            <div class='setting-group'>
+                <h4 class='setting-group-title'>Pilihan Font</h4>
+                <div class='options-container scrollable-setting' id='font-options-container'>
+                </div>
+            </div>
+            
+            <div class='setting-group'>
+                <h4 class='setting-group-title'>Pilihan Animasi Latar</h4>
+                <div class='options-container scrollable-setting' id='animation-options-container'>
+                </div>
+            </div>
+            
+            <div class='setting-group'>
+                <h4 class='setting-group-title'>Ukuran Font Sistem</h4>
+                <div style='display:flex; align-items:center; gap:10px;'>
+                    <input data-target='system-font-size-slider' id='system-font-size-slider' max='1.2' min='0.8' step='0.05' style='flex-grow:1;' type='range' value='1' />
+                    <span class='font-size-value'>1.0x</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
 
     <main class="app-main-content">
         <header class='main-header'>
             <div class='main-header-left'>
-                <button id="settings-toggle-btn" class='mobile-menu-toggle' title='Pengaturan Tampilan'><i class='fas fa-bars'></i></button>
-                <h1 class='main-title'>Zona arena Dewasa</h1>
+                <button id="sidebar-toggle-btn" class='mobile-menu-toggle' title='Buka Menu Navigasi'><i class='fas fa-bars'></i></button>
+                <h1 class='main-title'>Beranda Novel</h1>
             </div>
-            </header>
+        </header>
 
-        <div class="blog-section" id="latest-post-section">
-            <h2 class="section-title">Terbaru ✨</h2>
+        <div class="blog-section">
+            <h2 class="section-title">Terbaru</h2>
             <div id="latest-post-container">
-                <div class="skeleton-loader-card large"></div>
+                <div class="latest-post-card skeleton"></div>
             </div>
         </div>
 
         <div class="blog-section">
-             <h2 class="section-title">Jelajahi Kategori 📚</h2>
-            <div class='category-list-container'>
-                <div class='category-list-grid' id='category-list-container'>
-                    <div class="skeleton-loader-card small"></div>
-                    <div class="skeleton-loader-card small"></div>
-                    <div class="skeleton-loader-card small"></div>
-                    <div class="skeleton-loader-card small"></div>
-                </div>
+            <h2 class="section-title">Kategori</h2>
+            <div class='category-list-grid' id='category-list-container'>
+                <div class="category-card skeleton"></div>
+                <div class="category-card skeleton"></div>
+                <div class="category-card skeleton"></div>
+                <div class="category-card skeleton"></div>
             </div>
         </div>
+        
     </main>
     
-    <div id="settings-panel-container"></div>
     <script src="https://mawwsenpai.github.io/maww-library/script.js" defer></script>
     <script src="js/app.js" defer></script>
-    <script src="js/script.js" defer></script>
+    <script src="js/menu.js" defer></script> 
+    <script src="js/script.js" defer></script> 
 </body>
 </html>
