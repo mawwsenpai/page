@@ -80,12 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
     script.defer = true;
     script.onload = initializeGisClient;
     document.body.appendChild(script);
-
+    
     function maybeEnableButtons() {
-        if (gapiInited && gisInited) {
-            loginBtn.disabled = false;
-        }
+    if (gapiInited && gisInited) {
+        loginBtn.disabled = false; // Hapus atribut 'disabled' dari tombol
+        console.log('Sistem Otentikasi Siap. Tombol Login diaktifkan.');
     }
+}
 
     // --- AUTENTIKASI --- //
 
