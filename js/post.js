@@ -4,16 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleHeader = document.getElementById('blog-post-title-header');
   const contentContainer = document.getElementById('blog-post-content-container');
   const backButton = document.getElementById('back-button');
-  const navContainer = document.getElementById('post-navigation-container'); // Bisa dihapus jika elemennya tidak ada lagi
+  const navContainer = document.getElementById('post-navigation-container');
   const panelContainer = document.getElementById('tags-panel-container');
 function setupSidePanel() {
-  console.log("⚙️ [app.js] Memulai setupSidePanel...");
-  
+    
   const container = document.getElementById('tags-panel-container');
   const toggleBtn = document.getElementById('tags-toggle-btn');
   
   if (!container) {
-    console.error("❌ [app.js] KRITIS: Elemen <div id='tags-panel-container'> tidak ditemukan di HTML. Panel tidak akan pernah muncul.");
       return { update: () => {} };
   } else {
   
@@ -27,13 +25,11 @@ function setupSidePanel() {
   let panel; 
   
   const updatePanel = (title, contentHtml) => {
-    console.log(`[app.js] Fungsi sidePanel.update() dipanggil dengan judul: "${title}"`);
       if (!panel) {
       container.innerHTML = '';
       panel = document.createElement('div');
       panel.className = 'tags-slide-panel';
       container.appendChild(panel);
-      console.log("[app.js] Elemen panel baru berhasil dibuat dan ditambahkan ke kontainer.");
     }
     panel.innerHTML = `
           <div class="settings-panel-header">
@@ -46,22 +42,17 @@ function setupSidePanel() {
     if (closeBtn) {
       closeBtn.addEventListener('click', togglePanel);
     } else {
-      console.error("❌ [app.js] Gagal menemukan #close-tags-btn di dalam panel. Periksa struktur HTML di updatePanel.");
     }
   };
   
   const togglePanel = () => {
     if (panel) {
       panel.classList.toggle('is-open');
-      console.log(`[app.js] Panel di-${panel.classList.contains('is-open') ? 'BUKA' : 'TUTUP'}.`);
     } else {
-      console.warn("[app.js] Mencoba membuka/menutup panel, tapi panelnya belum dibuat. Ini seharusnya terjadi saat tombol diklik pertama kali.");
     }
   };
   
   toggleBtn.addEventListener('click', togglePanel);
-  console.log("✅ [app.js] SUKSES: Event listener 'click' berhasil ditempelkan ke #tags-toggle-btn.");
-  
   return { update: updatePanel };
 }
 
@@ -114,7 +105,7 @@ const sidePanel = setupSidePanel();
       renderShareButtons(post.title, post.url);
 
       const tagsContent = createPostTagsContent(post.labels);
-      if (sidePanel.update) sidePanel.update("Tag Postingan Ini", tagsContent);
+      if (sidePanel.update) sidePanel.update("Novel Sedang dibaca", tagsContent);
 
       renderPostNavigation(post.id, post.labels);
 
@@ -186,10 +177,8 @@ const sidePanel = setupSidePanel();
         navContainer.innerHTML = '';
       }
       
-      console.log("Navigasi Geser Siap:", { prevPostUrl, nextPostUrl });
-
     } catch (error) {
-      console.error("Gagal memuat data navigasi geser:", error);
+   
     }
   }
 
@@ -218,7 +207,6 @@ const sidePanel = setupSidePanel();
             copyBtn.innerHTML = '<i class="fas fa-link"></i>';
           }, 2000);
         }).catch(err => {
-          console.error('Gagal menyalin tautan:', err);
         });
       });
     }

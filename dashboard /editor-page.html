@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor</title>
+    <link rel="stylesheet" href="main.css">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:wght@400;700&display=swap' rel='stylesheet'/>
+</head>
+<body>
+    <div id="app-container">
+        <main class="main-view hidden" id="editor-view">
+            <header class='main-header'>
+                <div class='main-header-left'>
+                    <button aria-label='Kembali' class='mobile-menu-toggle' id='back-btn'><i class='fas fa-arrow-left'></i></button>
+                    <input id='chapter-title-input' placeholder='Judul Bab...' type='text'/>
+                </div>
+                <div class="main-header-right">
+                    <button class='app-button primary' id='save-chapter-btn' title='Simpan Bab'><i class='fas fa-save'></i> Simpan</button>
+                </div>
+            </header>
+            <div class='editor-container'>
+                <textarea class='main-textarea' id='chapter-editor-textarea' placeholder='Mulai tulis ceritamu di sini...'></textarea>
+            </div>
+        </main>
+        <main class="main-view" id="loader-view">
+             <div class="content-area">
+                <p class="info-message">Menyiapkan editor...</p>
+             </div>
+        </main>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="editor-page.js"></script>
+</body>
+</html>

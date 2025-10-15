@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (!window.MawwTheme) {
-      return;
-  }
+  
     function createLatestPostCard(post) {
         const imageUrl = (post.images && post.images.length > 0) ?
             post.images[0].url.replace(/\/s\d+(-c)?\//, '/w800-h450-c/') :
