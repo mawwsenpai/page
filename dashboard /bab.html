@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Bab - Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loader" class="loader-overlay"><div class="spinner"></div><p>Memuat...</p></div>
+
+    <header class="chapter-header" id="chapter-header">
+        <div class="chapter-header-overlay"></div>
+        <div class="chapter-header-content">
+            <a href="main.html" class="back-button" title="Kembali ke Beranda"><i class="fas fa-arrow-left"></i></a>
+            <h1 id="chapter-title">Memuat Judul...</h1>
+            <p id="chapter-info">Memuat info...</p>
+        </div>
+    </header>
+
+    <main class="app-main-content">
+        <div class="page-header">
+            <h2 class="section-title">Daftar Bab</h2>
+            <a href="#" id="add-new-chapter-btn" class="action-button">
+                <i class="fas fa-plus"></i> Tambah Bab Baru
+            </a>
+        </div>
+        <div class="chapter-list-container">
+            <div class="chapter-list-header">
+                <div class="col-title">Judul Bab</div>
+                <div class="col-status">Status</div>
+                <div class="col-views">Tayangan</div>
+                <div class="col-words">Kata</div>
+                <div class="col-date">Tanggal</div>
+            </div>
+            <div class="chapter-list" id="chapter-list-content">
+                </div>
+        </div>
+    </main>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/bab.js"></script>
+</body>
+</html>

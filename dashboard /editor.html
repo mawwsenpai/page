@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memuat Postingan...</title>
+
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body class="editor-body">
+
+    <div class="loader-overlay" id="page-loader"><div class="spinner"></div><p>Memuat...</p></div>
+
+    <main class="app-main-content">
+        <header class='main-header editor-header'>
+            <div class='main-header-left'>
+                <a href="#" id="back-button" class='mobile-menu-toggle' title='Kembali'><i class='fas fa-arrow-left'></i></a>
+                <h1 class='main-title' id='post-title-input' contenteditable="true" placeholder="Ketik Judul Bab di sini..."></h1>
+            </div>
+            <div class="main-header-right">
+                <button id="settings-toggle-btn" class="mobile-menu-toggle" title="Pengaturan & Alat Tulis"><i class="fas fa-tools"></i></button>
+            </div>
+        </header>
+        
+        <div class='editor-container' id="quill-editor-container">
+            <div id="quill-editor"></div>
+        </div>
+    </main>
+
+    <aside id="settings-panel">
+        <div class="panel-header">
+            <h3>Alat & Pengaturan</h3>
+            <button id="close-settings-btn" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="panel-body">
+            <div class="setting-group">
+                <label class="setting-group-title">Alat Tulis</label>
+                <div id="quill-toolbar-container">
+                    </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-group-title">Info Postingan</label>
+                <div class="post-info-widget">
+                    <div class="info-item"><span class="info-label">Status</span><span id="info-status" class="info-value"></span></div>
+                    <div class="info-item"><span class="info-label">Jumlah Kata</span><span id="info-word-count" class="info-value">0</span></div>
+                    <div class="info-item"><span class="info-label">Novel</span><span id="info-novel-label" class="info-value">-</span></div>
+                    <div class="info-item"><span class="info-label">Diperbarui</span><span id="info-last-updated" class="info-value">Belum disimpan</span></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-group-title">Opsi Simpan</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="status" value="DRAFT" checked><span>Draft</span></label>
+                    <label class="radio-label"><input type="radio" name="status" value="LIVE"><span>Publikasikan</span></label>
+                </div>
+            </div>
+            <div class="setting-group">
+                <label for="labels-input" class="setting-group-title">Label Tambahan</label>
+                <input type="text" id="labels-input" placeholder="Pisahkan dengan koma...">
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button id="save-draft-btn" class="action-button secondary">Simpan Draft</button>
+            <button id="publish-btn" class="action-button primary">Publikasikan</button>
+        </div>
+    </aside>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/editor.js"></script>
+</body>
+</html>
