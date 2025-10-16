@@ -1,23 +1,10 @@
-// File: js/main.js (Versi Final Paling Lengkap)
+// File: js/main.js (Versi Final Paling Lengkap - Perbaikan Tombol Tambah Novel)
 (() => {
     // --- 1. KONFIGURASI & INISIALISASI ---
-    const config = {
-        firebase: {
-            apiKey: "AIzaSyBvWOW46b0zJ3zmUp4fSUyaw1VnNvxCF60",
-            authDomain: "revisipro-6dd30.firebaseapp.com",
-            databaseURL: "https://revisipro-6dd30-default-rtdb.asia-southeast1.firebasedatabase.app",
-        },
-        gapi: {
-            apiKey: 'AIzaSyBvWOW46b0zJ3zmUp4fSUyaw1VnNvxCF60',
-            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/blogger/v3/rest"],
-            scope: 'https://www.googleapis.com/auth/blogger'
-        }
-    };
 
-    // Pengecekan mandiri untuk masalah 'addScope'
     if (typeof config.gapi.scope !== 'string' || config.gapi.scope === '') {
-        alert("FATAL ERROR: 'scope' di konfigurasi main.js tidak valid! Kode tidak akan berjalan.");
-        return; // Hentikan eksekusi jika config rusak
+        alert("FATAL ERROR: 'scope' di konfigurasi main.js tidak valid! Cek kembali file main.js.");
+        return;
     }
 
     firebase.initializeApp(config.firebase);
@@ -25,29 +12,21 @@
     const db = firebase.database();
 
     // --- 2. STATE APLIKASI ---
-    const appState = {
-        currentUser: null,
-        currentBlogId: null,
-        isGapiReady: false,
-        allPosts: [], // Cache untuk semua postingan
-    };
+    const appState = { currentUser: null, currentBlogId: null, isGapiReady: false, allPosts: [] };
 
     // --- 3. ELEMEN DOM ---
     const dom = {
         loader: document.getElementById('loader'),
         sidebar: document.getElementById('app-sidebar'),
         mainLayout: document.querySelector('.main-layout'),
-        // Views
         dashboardView: document.getElementById('dashboard-view'),
         analysisView: document.getElementById('analysis-view'),
         analysisSelection: document.getElementById('analysis-selection'),
         analysisDetail: document.getElementById('analysis-detail'),
         initialBlogSelectionView: document.getElementById('initial-blog-selection-view'),
         dashboardEmptyState: document.getElementById('dashboard-empty-state'),
-        // Tombol & Navigasi
         sidebarToggleBtn: document.getElementById('sidebar-toggle-btn'),
         backToAnalysisSelectionBtn: document.getElementById('back-to-analysis-selection'),
-        // Konten
         blogNameHeader: document.getElementById('blog-name-header'),
         welcomeTitle: document.getElementById('welcome-title'),
         initialBlogList: document.getElementById('initial-blog-list'),
@@ -55,7 +34,6 @@
         analysisNovelList: document.getElementById('analysis-novel-list'),
         analysisDetailTitle: document.getElementById('analysis-detail-title'),
         analysisDetailList: document.getElementById('analysis-detail-list'),
-        // Modal
         addNovelModal: document.getElementById('add-novel-modal'),
         closeAddNovelModal: document.getElementById('close-add-novel-modal'),
         novelTitleInput: document.getElementById('novel-title-input'),
@@ -72,7 +50,7 @@
             auth.onAuthStateChanged(handleAuthStateChange);
         } catch (error) {
             console.error("Gagal inisialisasi GAPI:", error);
-            showErrorState("Gagal memuat komponen Google. Coba refresh halaman.");
+            showErrorState("Gagal memuat komponen Google.");
         }
     }
 
@@ -88,7 +66,6 @@
                 if (selectedBlogId) {
                     appState.currentBlogId = selectedBlogId;
                     const blog = await callBloggerApi(() => gapi.client.blogger.blogs.get({ blogId: appState.currentBlogId }));
-                    if(blog) dom.blogNameHeader.textContent = blog.result.name;
                     await fetchAllPosts();
                     await renderDashboard();
                 } else {
@@ -103,22 +80,14 @@
             toggleLoader(false);
         }
     }
-
+    
     async function fetchAllPosts() {
         toggleLoader(true);
         try {
             const response = await callBloggerApi(() => gapi.client.blogger.posts.list({
-                blogId: appState.currentBlogId,
-                maxResults: 500,
-                status: ['live', 'draft'],
-                fetchImages: true,
-                view: 'AUTHOR'
+                blogId: appState.currentBlogId, maxResults: 500, status: ['live', 'draft'], fetchImages: true, view: 'AUTHOR'
             }));
-            if (response && response.result.items) {
-                appState.allPosts = response.result.items;
-            } else {
-                 appState.allPosts = [];
-            }
+            appState.allPosts = response?.result?.items || [];
         } catch (error) {
             console.error("Gagal mengambil semua post:", error);
             appState.allPosts = [];
@@ -128,24 +97,42 @@
     }
 
     async function renderDashboard() {
+        dom.blogNameHeader.textContent = 'Beranda Novel';
         toggleAllViews(false);
         dom.dashboardView.classList.remove('hidden');
 
         const novelMap = new Map();
         appState.allPosts.forEach(post => post.labels?.forEach(label => {
-            if (!novelMap.has(label)) novelMap.set(label, { post, count: 0 });
+            if (!novelMap.has(label)) novelMap.set(label, { post: null, count: 0 }); // Inisialisasi 'post' sebagai null
         }));
+        
+        // Cari gambar sampul (post pertama dengan gambar) & hitung jumlah bab
         appState.allPosts.forEach(post => post.labels?.forEach(label => {
-            if (novelMap.has(label)) novelMap.get(label).count++;
+            if (novelMap.has(label)) {
+                const novelData = novelMap.get(label);
+                novelData.count++;
+                if (!novelData.post && post.images && post.images.length > 0) {
+                    novelData.post = post; // Set post pertama dengan gambar sebagai sampul
+                }
+            }
         }));
-
+        
+        dom.novelListContainer.innerHTML = '';
         const addCard = document.createElement('div');
         addCard.className = 'create-label-card';
         addCard.innerHTML = `<div class="icon-placeholder"><i class="fas fa-plus-circle"></i><span>Buat Novel Baru</span></div>`;
         addCard.onclick = () => dom.addNovelModal.classList.remove('hidden');
-
+        
         const novelCards = Array.from(novelMap.entries()).map(([label, { post, count }]) => {
-            const imgUrl = (post.images?.[0]?.url.replace(/\/s\d+(-c)?\//, '/w200-h300-c/')) || `https://via.placeholder.com/200x300/1a2026/94a3b8?text=${encodeURIComponent(label)}`;
+            // 1. Cek apakah ada gambar sampul
+            const hasCover = post?.images?.[0]?.url;
+            
+            // 2. Siapkan class dan URL gambar berdasarkan kondisi
+            const cardClass = hasCover ? '' : 'no-cover';
+            const imgUrl = hasCover ?
+                post.images[0].url.replace(/\/s\d+(-c)?\//, '/w200-h300-c/') :
+                'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                
             const cardLink = document.createElement('a');
             cardLink.href = `bab.html?blogId=${appState.currentBlogId}&label=${encodeURIComponent(label)}`;
             cardLink.className = 'tag-card-link';
@@ -154,17 +141,18 @@
                     <div class="tag-card-cover"><img src="${imgUrl}" alt="${label}"></div>
                     <div class="tag-card-info"><h3 class="tag-card-title">${label}</h3></div>
                     <div class="analysis-overlay">
-                        <h4 class="analysis-title">Analisis Novel</h4>
-                        <span class="analysis-stat">${count}</span>
-                        <span class="analysis-label">Total Bab</span>
+                        <h4 class="analysis-title">${label}</h4>
+                        <span class="analysis-label">${count} Total Bab</span>
                     </div>
                 </div>`;
             return cardLink;
         });
+
         dom.novelListContainer.replaceChildren(addCard, ...novelCards);
     }
-
+    
     function renderAnalysisView() {
+        dom.blogNameHeader.textContent = 'Analisis Novel'; //
         toggleAllViews(false);
         dom.analysisView.classList.remove('hidden');
         dom.analysisSelection.classList.remove('hidden');
@@ -172,11 +160,11 @@
         
         const novelMap = new Map();
         appState.allPosts.forEach(post => post.labels?.forEach(label => {
-            if (!novelMap.has(label)) novelMap.set(label, { post });
+            if (!novelMap.has(label)) novelMap.set(label, true);
         }));
 
         dom.analysisNovelList.innerHTML = '';
-        novelMap.forEach(({ post }, label) => {
+        novelMap.forEach((_, label) => {
             const div = document.createElement('div');
             div.className = 'initial-blog-list-item';
             div.innerHTML = `<h3>${label}</h3>`;
@@ -279,7 +267,7 @@
             if (error.result?.error?.code === 401 && retryCount > 0) {
                 console.warn("API call gagal (401). Mencoba refresh token...");
                 await refreshToken();
-                return; // Hentikan eksekusi, biarkan refreshToken memicu alur baru
+                return;
             }
             throw error;
         }
@@ -332,6 +320,23 @@
         };
         dom.createNovelBtn.onclick = handleCreateNewNovel;
         dom.backToAnalysisSelectionBtn.onclick = renderAnalysisView;
+    
+        document.addEventListener('click', function(event) {
+    if (!dom.sidebar.classList.contains('is-open')) {
+        return;
+    }
+    
+    // GANTI DENGAN CARA YANG LEBIH PINTAR INI
+    const isClickInsideSidebar = event.target.closest('#app-sidebar');
+    const isClickOnToggleButton = event.target.closest('#sidebar-toggle-btn');
+    
+    // Jika kliknya bukan di dalam sidebar DAN bukan di tombol toggle
+    if (!isClickInsideSidebar && !isClickOnToggleButton) {
+        dom.sidebar.classList.remove('is-open');
+        
+    }
+            
+        });
     }
     
     function renderSidebar(state) {
@@ -356,22 +361,27 @@
             document.getElementById('close-sidebar-btn').onclick = () => dom.sidebar.classList.remove('is-open');
             document.getElementById('nav-beranda').onclick = (e) => { e.preventDefault(); renderDashboard(); dom.sidebar.classList.remove('is-open'); };
             document.getElementById('nav-analisis').onclick = (e) => { e.preventDefault(); renderAnalysisView(); dom.sidebar.classList.remove('is-open'); };
-            document.getElementById('switch-blog-btn').onclick = async () => {
-                renderSidebar('blog-selection');
-                const listEl = document.getElementById('sidebar-blog-list');
-                try {
-                    const response = await callBloggerApi(() => gapi.client.blogger.blogs.listByUser({ userId: 'self' }));
-                    if(!response) return;
-                    const blogs = response.result.items || [];
-                    listEl.innerHTML = '';
-                    blogs.forEach(blog => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<a href="#" class="nav-link">${blog.name}</a>`;
-                        li.onclick = async (e) => { e.preventDefault(); dom.sidebar.classList.remove('is-open'); await selectBlog(blog.id); };
-                        listEl.appendChild(li);
-                    });
-                } catch(e) { listEl.innerHTML = '<li>Gagal memuat.</li>'; }
-            };
+            document.getElementById('switch-blog-btn').onclick = () => { // Hapus async dari sini
+    // INI DIA JURUS PAMUNGKASNYA
+    setTimeout(async () => { // Pindahkan async ke sini
+        renderSidebar('blog-selection');
+        const listEl = document.getElementById('sidebar-blog-list');
+        try {
+            const response = await callBloggerApi(() => gapi.client.blogger.blogs.listByUser({ userId: 'self' }));
+            if (!response) return;
+            const blogs = response.result.items || [];
+            listEl.innerHTML = '';
+            blogs.forEach(blog => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" class="nav-link">${blog.name}</a>`;
+                li.onclick = async (e) => { e.preventDefault(); dom.sidebar.classList.remove('is-open'); await selectBlog(blog.id); };
+                listEl.appendChild(li);
+            });
+        } catch (e) {
+            listEl.innerHTML = '<li>Gagal memuat.</li>';
+        }
+    }, 0); // Jeda 0 milidetik
+};
         } else if (state === 'blog-selection') {
             document.getElementById('back-to-menu-btn').onclick = () => renderSidebar('main');
         }
@@ -384,12 +394,12 @@
     }
     const getUserDataFromDb = (uid, path = '') => db.ref(`users/${uid}/${path}`).once('value').then(snap => snap.val());
     const toggleLoader = (show) => dom.loader.classList.toggle('hidden', !show);
-    const toggleAllViews = (show) => {
+    const toggleAllViews = () => {
         const views = [dom.dashboardView, dom.analysisView, dom.initialBlogSelectionView, dom.dashboardEmptyState];
         views.forEach(view => view.classList.add('hidden'));
     };
     function updateUIForGuest() {
-        toggleAllViews(false);
+        toggleAllViews();
         dom.dashboardEmptyState.classList.remove('hidden');
         dom.blogNameHeader.textContent = "Silakan Login";
     }

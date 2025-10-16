@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pemberitahuan Penting!</title>
-    <link rel="stylesheet" href="https://mawwsenpai.github.io/page/css/style.css">
+    <link rel="stylesheet" href="css/root.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,8 +17,6 @@
             margin: 0;
             padding: 0;
         }
-
-        /* Gaya placeholder untuk grid-item */
         .grid-item {
             position: relative;
             background-color: var(--bg-secondary);
@@ -30,8 +28,6 @@
             cursor: default;
             margin-bottom: 4px;
         }
-
-        /* Tambahan animasi placeholder saat memuat */
         .grid-item.placeholder::before {
             content: '';
             position: absolute;
@@ -140,11 +136,7 @@
         if (popup) {
             setTimeout(() => popup.classList.add('show'), 500);
         }
-        
-        // Memanggil langsung populateImageFlow dengan placeholder
         populateImageFlow(getFallbackImages(), false);
-        
-        // Memanggil API secara asinkron setelahnya
         fetchBlogImages();
     });
 
@@ -189,7 +181,6 @@
                         finalImageSet.push(...imageUrls);
                     }
                 }
-                // Memanggil populateImageFlow dengan gambar asli
                 populateImageFlow(finalImageSet);
             } else {
                 console.warn("Tidak ada gambar ditemukan di postingan blog, tetap menggunakan gambar fallback.");
@@ -217,8 +208,6 @@
         imageFlowContainer.innerHTML = '';
         imageFlowContainer.appendChild(wrapper1);
         imageFlowContainer.appendChild(wrapper2);
-
-        // Menambahkan class 'loaded' agar animasi dimulai
         setTimeout(() => {
             imageFlowContainer.classList.add('loaded');
         }, 20);
@@ -261,13 +250,10 @@
                         item.classList.add('loaded');
                     };
                     img.onerror = () => {
-                        // Jika gambar gagal dimuat, biarkan placeholder tetap ada
-                        // dan hapus class `loaded` jika sudah ditambahkan
                         item.classList.remove('loaded');
                     };
                     item.appendChild(img);
                 } else {
-                     // Jika isActualImages false (placeholder), tambahkan class `placeholder`
                     item.classList.add('placeholder');
                 }
                 

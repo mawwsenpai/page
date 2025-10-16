@@ -1,0 +1,42 @@
+:root {
+  --header-height: 64px;
+  --sidebar-width: 320px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --padding-sm: 1rem;
+  --padding-md: 1.5rem;
+  
+  /* Font */
+  --font-ui: 'Poppins', sans-serif;
+  --font-reading: 'Lora', serif;
+  
+  /* Transisi */
+  --transition-fast: all .2s ease-in-out;
+  --transition-smooth: all .3s cubic-bezier(.25, .8, .25, 1);
+  
+  /* Variabel Warna Utama */
+  --bg-primary: #0c1012;
+  --bg-primary-rgb: 12, 16, 18;
+  --bg-secondary: #1a2026;
+  --bg-secondary-rgb: 26, 32, 38;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border-color: #2d3748;
+  --accent-color: #d5c192;
+  --accent-text: #1a202c;
+  
+  /* Variabel Warna untuk Elemen Interaktif */
+  --interactive-hover-bg: rgba(255, 255, 255, 0.1);
+  --interactive-active-bg: rgba(213, 193, 146, 0.2);
+  
+  /* Variabel untuk Glassmorphism */
+  --glass-bg: rgba(var(--bg-secondary-rgb), 0.5);
+  --glass-blur: 10px;
+  
+  /* Variabel Lainnya */
+  --border-style: 1px solid var(--border-color);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --scroll-thumb-color: rgba(255, 255, 255, 0.3);
+  --z-panel: 1000;
+  --z-loading: 9999;
+}
