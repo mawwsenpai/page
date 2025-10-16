@@ -1,5 +1,10 @@
-// File: js/editor.js (Versi Lengkap dengan Toolbar di Panel)
 (() => {
+    // Pastikan variabel config global tersedia
+    if (typeof config === 'undefined' || !config.firebase || !config.gapi) {
+        console.error("Konfigurasi global (config) hilang atau tidak lengkap!");
+        return;
+    }
+
     // --- 1. KONFIGURASI & INISIALISASI ---
     firebase.initializeApp(config.firebase);
     const auth = firebase.auth();
@@ -19,8 +24,6 @@
         settingsToggleBtn: document.getElementById('settings-toggle-btn'),
         settingsPanel: document.getElementById('settings-panel'),
         closeSettingsBtn: document.getElementById('close-settings-btn'),
-        labelsInput: document.getElementById('labels-input'),
-        statusRadios: document.querySelectorAll('input[name="status"]'),
         saveDraftBtn: document.getElementById('save-draft-btn'),
         publishBtn: document.getElementById('publish-btn'),
         infoStatus: document.getElementById('info-status'),
@@ -30,7 +33,6 @@
     };
 
     // --- 4. FUNGSI UTAMA ---
-
     async function initialize() {
         toggleLoader(true);
         const params = new URLSearchParams(window.location.search);
@@ -39,11 +41,12 @@
         pageState.autoLabel = params.get('label');
         
         if (!pageState.blogId || !pageState.autoLabel) {
-            showErrorState("Informasi Blog atau Label tidak ditemukan di URL.");
+            showErrorState("Informasi Blog atau Label tidak ditemukan di URL. Cek parameter `blogId` dan `label`.");
             return;
         }
         
         dom.backButton.href = `bab.html?blogId=${pageState.blogId}&label=${pageState.autoLabel}`;
+        dom.infoNovelLabel.textContent = pageState.autoLabel;
         
         initQuill();
         setupEventListeners();
@@ -52,7 +55,8 @@
             await loadGapiClient();
             auth.onAuthStateChanged(handleUserAuthentication);
         } catch (error) {
-            showErrorState("Gagal memuat komponen Google.");
+            console.error("Error saat inisialisasi GAPI:", error);
+            showErrorState("Gagal memuat komponen Google. Cek koneksi atau konfigurasi GAPI.");
         }
     }
 
@@ -69,7 +73,7 @@
                     toggleLoader(false);
                 }
             } else {
-                showErrorState("Token tidak ditemukan.");
+                showErrorState("Token akses Blogger tidak ditemukan di database. Coba login ulang di main.html.");
             }
         } else {
             window.location.href = 'main.html';
@@ -78,6 +82,8 @@
 
     function initQuill() {
         const toolbarContainer = document.getElementById('quill-toolbar-container');
+        if (!toolbarContainer) return;
+        
         toolbarContainer.innerHTML = `
             <span class="ql-formats"><select class="ql-header"></select></span>
             <span class="ql-formats"><button class="ql-bold"></button><button class="ql-italic"></button><button class="ql-underline"></button><button class="ql-strike"></button></span>
@@ -100,6 +106,11 @@
     }
 
     async function loadPostData() {
+        if (!pageState.quill) {
+            showErrorState("Quill Editor gagal diinisialisasi.");
+            return;
+        }
+
         try {
             const response = await callBloggerApi(() => gapi.client.blogger.posts.get({
                 blogId: pageState.blogId, postId: pageState.postId, fetchBody: true, view: 'AUTHOR',
@@ -108,21 +119,19 @@
             
             const post = response.result;
             document.title = `Edit: ${post.title}`;
-            dom.titleInput.textContent = post.title;
-            pageState.quill.root.innerHTML = post.content || '';
+            dom.titleInput.value = post.title; // Menggunakan .value
             
-            const status = post.status === 'DRAFT' ? 'DRAFT' : 'LIVE';
-            document.querySelector(`input[name="status"][value="${status}"]`).checked = true;
-            
-            updateInfoWidget(post);
-            renderLabels(post.labels);
+            const contentHtml = post.content || '';
+            pageState.quill.clipboard.dangerouslyPasteHTML(0, contentHtml);
+            pageState.quill.setSelection(0, 0);
 
+            updateInfoWidget(post);
         } catch (error) {
             console.error("Gagal memuat post:", error);
-            if (error.status === 404) {
-                 showErrorState("Postingan tidak ditemukan. Mungkin telah dihapus.");
+            if (error.result?.error?.code === 404) {
+                showErrorState("Postingan tidak ditemukan (404). Mungkin telah dihapus.");
             } else {
-                 showErrorState("Gagal memuat data postingan.");
+                showErrorState("Gagal memuat data postingan. Cek token akses.");
             }
         } finally {
             toggleLoader(false);
@@ -130,7 +139,6 @@
     }
 
     // --- 5. FUNGSI EVENT & AKSI ---
-    
     function setupEventListeners() {
         dom.settingsToggleBtn.onclick = () => dom.settingsPanel.classList.toggle('is-open');
         dom.closeSettingsBtn.onclick = () => dom.settingsPanel.classList.remove('is-open');
@@ -139,11 +147,12 @@
     }
 
     function updateInfoWidget(post = {}) {
-        const isDraft = post.status === 'DRAFT';
+        const status = post.status || 'DRAFT';
+        const isDraft = status === 'DRAFT';
         const wordCount = post.content ? post.content.split(/\s+/).filter(Boolean).length : getWordCount();
         
         dom.infoStatus.textContent = isDraft ? 'Draft' : 'Live';
-        dom.infoStatus.className = `info-value ${isDraft ? 'draft' : 'live'}`;
+        dom.infoStatus.className = `info-value ${isDraft ? 'draft-status' : 'live-status'}`;
         dom.infoWordCount.textContent = wordCount;
         dom.infoNovelLabel.textContent = pageState.autoLabel;
         
@@ -155,50 +164,115 @@
     }
 
     async function savePost(publish) {
-        toggleLoader(true);
-        const title = dom.titleInput.textContent.trim();
-        if (!title) {
-            alert("Judul tidak boleh kosong!");
-            toggleLoader(false);
-            return;
-        }
+    let errorOccurred = false;
+    toggleLoader(true);
+    
+    const title = dom.titleInput.value.trim();
+    if (!title) {
+        toggleLoader(false);
+        // Ganti alert dengan notifikasi
+        showNotification("Judul tidak boleh kosong!", 'error');
+        return;
+    }
 
-        const content = pageState.quill.root.innerHTML;
-        const manualLabels = dom.labelsInput.value.split(',').map(l => l.trim()).filter(Boolean);
-        const allLabels = [...new Set([pageState.autoLabel, ...manualLabels])];
-
-        const resource = { title, content, labels: allLabels };
-
-        try {
-            let response;
-            if (pageState.postId) {
-                response = await callBloggerApi(() => gapi.client.blogger.posts.update({
-                    blogId: pageState.blogId, postId: pageState.postId, resource, publish,
-                }));
-            } else {
-                response = await callBloggerApi(() => gapi.client.blogger.posts.insert({
-                    blogId: pageState.blogId, resource, isDraft: !publish,
-                }));
-                pageState.postId = response.result.id;
-                const newUrl = new URL(window.location);
-                newUrl.searchParams.set('postId', pageState.postId);
-                window.history.replaceState({}, '', newUrl);
-            }
+    const content = pageState.quill.root.innerHTML;
+    const allLabels = [pageState.autoLabel].filter(Boolean);
+    const resource = { title, content, labels: allLabels };
+    
+    try {
+        let response;
+        if (pageState.postId) {
+            response = await callBloggerApi(() => gapi.client.blogger.posts.update({
+                blogId: pageState.blogId, postId: pageState.postId, resource, publish,
+            }));
+        } else {
+            response = await callBloggerApi(() => gapi.client.blogger.posts.insert({
+                blogId: pageState.blogId, resource, isDraft: !publish,
+            }));
             
-            updateInfoWidget(response.result); // Update widget info dengan data terbaru
-            alert(`Postingan berhasil ${publish ? 'dipublikasikan' : 'disimpan sebagai draft'}!`);
+            pageState.postId = response.result.id;
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('postId', pageState.postId);
+            window.history.replaceState({}, '', newUrl);
+        }
+        
+        updateInfoWidget(response.result);
 
-        } catch (error) {
-            console.error("Gagal menyimpan post:", error);
-            alert("Gagal menyimpan postingan. Lihat konsol untuk detail.");
-        } finally {
-            toggleLoader(false);
-            dom.settingsPanel.classList.remove('is-open');
+    } catch (error) {
+        errorOccurred = true;
+        console.error("Gagal menyimpan post:", error);
+        showNotification("Gagal menyimpan postingan. Cek konsol!", 'error');
+    } finally {
+        toggleLoader(false);
+        dom.settingsPanel.classList.remove('is-open');
+        
+        if (!errorOccurred) {
+            // Jika aksi adalah PUBLIKASI
+            if (publish) {
+                const message = 'Postingan berhasil dipublikasikan!';
+                // Buat fungsi untuk redirect
+                const redirectAction = () => {
+                    window.location.href = `bab.html?blogId=${pageState.blogId}&label=${pageState.autoLabel}`;
+                };
+                // Panggil notifikasi dan sertakan fungsi redirect sebagai parameter ketiga
+                setTimeout(() => showNotification(message, 'success', redirectAction), 300);
+            
+            // Jika aksi adalah SIMPAN DRAFT
+            } else {
+                const message = 'Postingan berhasil disimpan sebagai draft!';
+                // Panggil notifikasi seperti biasa, tanpa parameter ketiga
+                setTimeout(() => showNotification(message, 'success'), 300);
+            }
         }
     }
+}
+// --- 6. FUNGSI PEMBANTU ---
+
+// Tambahkan parameter baru di akhir: onOkCallback
+function showNotification(message, type = 'success', onOkCallback) {
+    // Hapus notifikasi lama jika ada
+    const existingOverlay = document.querySelector('.notification-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
     
-    // --- 6. FUNGSI PEMBANTU ---
+    // Bagian ini masih sama
+    const overlay = document.createElement('div');
+    overlay.className = 'notification-overlay';
+    const panel = document.createElement('div');
+    panel.className = `notification-panel ${type}`;
+    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
     
+    panel.innerHTML = `
+        <i class="fas ${iconClass} icon"></i>
+        <span>${message}</span>
+        <button class="notification-button">OK</button>
+    `;
+    
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    
+    // Fungsi untuk menutup notifikasi
+    const closeNotification = () => {
+        overlay.classList.add('closing');
+        setTimeout(() => {
+            overlay.remove();
+            
+            // --- INI BAGIAN PENTING YANG BARU ---
+            // Jika ada fungsi 'onOkCallback' yang diberikan, jalankan fungsi itu.
+            if (typeof onOkCallback === 'function') {
+                onOkCallback();
+            }
+            // ------------------------------------
+            
+        }, 300);
+    };
+    
+    // Event listener masih sama
+    const okButton = panel.querySelector('.notification-button');
+    okButton.addEventListener('click', closeNotification);
+}
+
     async function refreshToken() {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope(config.gapi.scope);
@@ -240,30 +314,27 @@
     
     async function loadGapiClient() {
         await new Promise((resolve, reject) => gapi.load('client', { callback: resolve, onerror: reject }));
-        await gapi.client.init({ apiKey: config.gapi.apiKey, discoveryDocs: config.gapi.discoveryDocs });
+        await gapi.client.init({
+            apiKey: config.gapi.apiKey,
+            discoveryDocs: config.gapi.discoveryDocs
+        });
         pageState.isGapiReady = true;
     }
 
     const getUserTokenFromDb = (uid) => db.ref(`users/${uid}/bloggerAccessToken`).once('value').then(snap => snap.val());
     
-    const toggleLoader = (show) => dom.loader.style.display = show ? 'flex' : 'none';
+    const toggleLoader = (show) => {
+        if(dom.loader) dom.loader.style.display = show ? 'flex' : 'none';
+    };
 
     const showErrorState = (message) => {
-        document.body.innerHTML = `<div style="color:red;padding:20px;text-align:center;font-family: var(--font-ui);">${message}</div>`;
+        document.body.innerHTML = `<div style="color:red;padding:20px;text-align:center;font-family: Arial, sans-serif; line-height: 1.5;">
+            <p><strong>🚨 ERROR KRITIS 🚨</strong></p>
+            <p>${message}</p>
+        </div>`;
         toggleLoader(false);
-    }
-    
-    function renderLabels(labels = []) {
-        const manualLabels = [];
-        (labels || []).forEach(label => {
-            if (label !== pageState.autoLabel) {
-                manualLabels.push(label);
-            }
-        });
-        dom.labelsInput.value = manualLabels.join(', ');
-    }
+    };
     
     // --- 7. JALANKAN APLIKASI ---
     initialize();
-
-})();
+ })();
