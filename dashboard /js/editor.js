@@ -1,5 +1,5 @@
 (() => {
-    // Pastikan variabel config global tersedia
+    // Bersihkan dari komentar yang berlebihan.
     if (typeof config === 'undefined' || !config.firebase || !config.gapi) {
         console.error("Konfigurasi global (config) hilang atau tidak lengkap!");
         return;
@@ -14,6 +14,11 @@
     const pageState = {
         blogId: null, postId: null, autoLabel: null,
         isGapiReady: false, quill: null,
+    };
+    const CSS_CLASSES = {
+    PANEL_OPEN: 'is-open',
+    NAVBAR_HIDDEN: 'is-hidden'
+        
     };
 
     // --- 3. ELEMEN DOM ---
@@ -41,7 +46,7 @@
         pageState.autoLabel = params.get('label');
         
         if (!pageState.blogId || !pageState.autoLabel) {
-            showErrorState("Informasi Blog atau Label tidak ditemukan di URL. Cek parameter `blogId` dan `label`.");
+            showErrorState("Informasi Blog atau Label tidak ditemukan.");
             return;
         }
         
@@ -50,13 +55,13 @@
         
         initQuill();
         setupEventListeners();
-
+    
         try {
             await loadGapiClient();
             auth.onAuthStateChanged(handleUserAuthentication);
         } catch (error) {
             console.error("Error saat inisialisasi GAPI:", error);
-            showErrorState("Gagal memuat komponen Google. Cek koneksi atau konfigurasi GAPI.");
+            showErrorState("Gagal memuat komponen Google.");
         }
     }
 
@@ -73,38 +78,66 @@
                     toggleLoader(false);
                 }
             } else {
-                showErrorState("Token akses Blogger tidak ditemukan di database. Coba login ulang di main.html.");
+                showErrorState("Token akses Blogger tidak ditemukan.");
             }
         } else {
             window.location.href = 'main.html';
         }
     }
+   // GANTI SEMUA FUNGSI initQuill KAMU DENGAN INI:
 
-    function initQuill() {
-        const toolbarContainer = document.getElementById('quill-toolbar-container');
-        if (!toolbarContainer) return;
-        
-        toolbarContainer.innerHTML = `
-            <span class="ql-formats"><select class="ql-header"></select></span>
-            <span class="ql-formats"><button class="ql-bold"></button><button class="ql-italic"></button><button class="ql-underline"></button><button class="ql-strike"></button></span>
-            <span class="ql-formats"><button class="ql-blockquote"></button></span>
-            <span class="ql-formats"><button class="ql-list" value="ordered"></button><button class="ql-list" value="bullet"></button></span>
-            <span class="ql-formats"><select class="ql-align"></select></span>
-            <span class="ql-formats"><button class="ql-link"></button><button class="ql-image"></button><button class="ql-video"></button></span>
-            <span class="ql-formats"><button class="ql-clean"></button></span>`;
-            
-        pageState.quill = new Quill('#quill-editor', {
-            modules: { toolbar: '#quill-toolbar-container' },
-            theme: 'snow',
-            placeholder: 'Mulai tulis ceritamu di sini...'
-        });
-        
-        pageState.quill.on('text-change', () => {
-            const wordCount = getWordCount();
-            dom.infoWordCount.textContent = wordCount;
-        });
-    }
-
+function initQuill() {
+    const toolbarContainer = document.getElementById('quill-toolbar-container');
+    if (!toolbarContainer) return;
+    
+    // LANGKAH 1: Buat HTML-nya (Daftar font/size sudah ada di sini)
+    // Ini sudah cukup, tidak perlu JS import lagi.
+    toolbarContainer.innerHTML = `
+        <div class="custom-toolbar">
+            <span class="custom-group">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+            </span>
+            <span class="custom-group">
+                <button class="ql-header" value="1"></button>
+                <button class="ql-header" value="2"></button>
+                <button class="ql-blockquote"></button>
+            </span>
+            <span class="custom-group">
+                <select class="ql-color"></select>
+                <select class="ql-background"></select>
+            </span>
+            <span class="custom-group">
+                <button class="ql-list" value="ordered"></button>
+                <button class="ql-list" value="bullet"></button>
+                <button class="ql-indent" value="-1"></button>
+                <button class="ql-indent" value="+1"></button>
+            </span>
+            <span class="custom-group">
+                <button class="ql-link"></button>
+                <button class="ql-image"></button>
+            </span>
+            <span class="custom-group">
+                <button class="ql-clean"></button>
+            </span>
+        </div>
+    `;
+    
+    pageState.quill = new Quill('#quill-editor', {
+        modules: {
+            // Kita HANYA perlu menunjuk ke HTML custom-nya
+            toolbar: '#quill-toolbar-container .custom-toolbar'
+            // HAPUS SEMUA BLOK 'font:' dan 'size:' DARI SINI
+        },
+        theme: 'snow',
+        placeholder: 'Mulai tulis ceritamu di sini...'
+    });
+    
+    pageState.quill.on('text-change', () => {
+        dom.infoWordCount.textContent = getWordCount();
+    });
+}
     async function loadPostData() {
         if (!pageState.quill) {
             showErrorState("Quill Editor gagal diinisialisasi.");
@@ -119,7 +152,7 @@
             
             const post = response.result;
             document.title = `Edit: ${post.title}`;
-            dom.titleInput.value = post.title; // Menggunakan .value
+            dom.titleInput.value = post.title; 
             
             const contentHtml = post.content || '';
             pageState.quill.clipboard.dangerouslyPasteHTML(0, contentHtml);
@@ -128,16 +161,14 @@
             updateInfoWidget(post);
         } catch (error) {
             console.error("Gagal memuat post:", error);
-            if (error.result?.error?.code === 404) {
-                showErrorState("Postingan tidak ditemukan (404). Mungkin telah dihapus.");
-            } else {
-                showErrorState("Gagal memuat data postingan. Cek token akses.");
-            }
+            showErrorState("Gagal memuat data postingan.");
         } finally {
             toggleLoader(false);
         }
     }
-
+    
+    // Fungsi lama: setupNavbarScrollBehavior() dihapus.
+    
     // --- 5. FUNGSI EVENT & AKSI ---
     function setupEventListeners() {
         dom.settingsToggleBtn.onclick = () => dom.settingsPanel.classList.toggle('is-open');
@@ -162,117 +193,98 @@
             dom.infoLastUpdated.textContent = 'Belum disimpan';
         }
     }
-
+    
+    // Fungsi lama: setupKeyboardEvents() dihapus.
+    
     async function savePost(publish) {
-    let errorOccurred = false;
-    toggleLoader(true);
-    
-    const title = dom.titleInput.value.trim();
-    if (!title) {
-        toggleLoader(false);
-        // Ganti alert dengan notifikasi
-        showNotification("Judul tidak boleh kosong!", 'error');
-        return;
-    }
-
-    const content = pageState.quill.root.innerHTML;
-    const allLabels = [pageState.autoLabel].filter(Boolean);
-    const resource = { title, content, labels: allLabels };
-    
-    try {
-        let response;
-        if (pageState.postId) {
-            response = await callBloggerApi(() => gapi.client.blogger.posts.update({
-                blogId: pageState.blogId, postId: pageState.postId, resource, publish,
-            }));
-        } else {
-            response = await callBloggerApi(() => gapi.client.blogger.posts.insert({
-                blogId: pageState.blogId, resource, isDraft: !publish,
-            }));
-            
-            pageState.postId = response.result.id;
-            const newUrl = new URL(window.location);
-            newUrl.searchParams.set('postId', pageState.postId);
-            window.history.replaceState({}, '', newUrl);
+        let errorOccurred = false;
+        toggleLoader(true);
+        
+        const title = dom.titleInput.value.trim();
+        if (!title) {
+            toggleLoader(false);
+            showNotification("Judul tidak boleh kosong!", 'error');
+            return;
         }
-        
-        updateInfoWidget(response.result);
 
-    } catch (error) {
-        errorOccurred = true;
-        console.error("Gagal menyimpan post:", error);
-        showNotification("Gagal menyimpan postingan. Cek konsol!", 'error');
-    } finally {
-        toggleLoader(false);
-        dom.settingsPanel.classList.remove('is-open');
+        const content = pageState.quill.root.innerHTML;
+        const allLabels = [pageState.autoLabel].filter(Boolean);
+        const resource = { title, content, labels: allLabels };
         
-        if (!errorOccurred) {
-            // Jika aksi adalah PUBLIKASI
-            if (publish) {
-                const message = 'Postingan berhasil dipublikasikan!';
-                // Buat fungsi untuk redirect
-                const redirectAction = () => {
-                    window.location.href = `bab.html?blogId=${pageState.blogId}&label=${pageState.autoLabel}`;
-                };
-                // Panggil notifikasi dan sertakan fungsi redirect sebagai parameter ketiga
-                setTimeout(() => showNotification(message, 'success', redirectAction), 300);
-            
-            // Jika aksi adalah SIMPAN DRAFT
+        try {
+            let response;
+            if (pageState.postId) {
+                // Update post (existing post)
+                response = await callBloggerApi(() => gapi.client.blogger.posts.update({
+                    blogId: pageState.blogId, postId: pageState.postId, resource, publish,
+                }));
             } else {
-                const message = 'Postingan berhasil disimpan sebagai draft!';
-                // Panggil notifikasi seperti biasa, tanpa parameter ketiga
-                setTimeout(() => showNotification(message, 'success'), 300);
+                // Insert post (new post)
+                response = await callBloggerApi(() => gapi.client.blogger.posts.insert({
+                    blogId: pageState.blogId, resource, isDraft: !publish,
+                }));
+                
+                pageState.postId = response.result.id;
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('postId', pageState.postId);
+                window.history.replaceState({}, '', newUrl);
+            }
+            
+            updateInfoWidget(response.result);
+
+        } catch (error) {
+            errorOccurred = true;
+            console.error("Gagal menyimpan post:", error);
+            showNotification("Gagal menyimpan postingan. Cek konsol!", 'error');
+        } finally {
+            toggleLoader(false);
+            dom.settingsPanel.classList.remove('is-open');
+            
+            if (!errorOccurred) {
+                const message = publish ? 'Postingan berhasil dipublikasikan!' : 'Postingan berhasil disimpan sebagai draft!';
+                const redirectAction = publish ? () => window.location.href = `bab.html?blogId=${pageState.blogId}&label=${pageState.autoLabel}` : null;
+                
+                setTimeout(() => showNotification(message, 'success', redirectAction), 300);
             }
         }
     }
-}
-// --- 6. FUNGSI PEMBANTU ---
 
-// Tambahkan parameter baru di akhir: onOkCallback
-function showNotification(message, type = 'success', onOkCallback) {
-    // Hapus notifikasi lama jika ada
-    const existingOverlay = document.querySelector('.notification-overlay');
-    if (existingOverlay) {
-        existingOverlay.remove();
+    // --- 6. FUNGSI PEMBANTU ---
+
+    function showNotification(message, type = 'success', onOkCallback) {
+        const existingOverlay = document.querySelector('.notification-overlay');
+        if (existingOverlay) existingOverlay.remove();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'notification-overlay';
+        const panel = document.createElement('div');
+        panel.className = `notification-panel ${type}`;
+        const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        
+        panel.innerHTML = `
+            <i class="fas ${iconClass} icon"></i>
+            <span>${message}</span>
+            <button class="notification-button">OK</button>
+        `;
+        
+        overlay.appendChild(panel);
+        document.body.appendChild(overlay);
+        
+        const closeNotification = () => {
+            overlay.classList.add('closing');
+            setTimeout(() => {
+                overlay.remove();
+                if (typeof onOkCallback === 'function') {
+                    onOkCallback();
+                }
+            }, 300);
+        };
+        
+        const okButton = panel.querySelector('.notification-button');
+        okButton.addEventListener('click', closeNotification);
     }
-    
-    // Bagian ini masih sama
-    const overlay = document.createElement('div');
-    overlay.className = 'notification-overlay';
-    const panel = document.createElement('div');
-    panel.className = `notification-panel ${type}`;
-    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
-    
-    panel.innerHTML = `
-        <i class="fas ${iconClass} icon"></i>
-        <span>${message}</span>
-        <button class="notification-button">OK</button>
-    `;
-    
-    overlay.appendChild(panel);
-    document.body.appendChild(overlay);
-    
-    // Fungsi untuk menutup notifikasi
-    const closeNotification = () => {
-        overlay.classList.add('closing');
-        setTimeout(() => {
-            overlay.remove();
-            
-            // --- INI BAGIAN PENTING YANG BARU ---
-            // Jika ada fungsi 'onOkCallback' yang diberikan, jalankan fungsi itu.
-            if (typeof onOkCallback === 'function') {
-                onOkCallback();
-            }
-            // ------------------------------------
-            
-        }, 300);
-    };
-    
-    // Event listener masih sama
-    const okButton = panel.querySelector('.notification-button');
-    okButton.addEventListener('click', closeNotification);
-}
-
+   
+   
     async function refreshToken() {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope(config.gapi.scope);
@@ -337,4 +349,4 @@ function showNotification(message, type = 'success', onOkCallback) {
     
     // --- 7. JALANKAN APLIKASI ---
     initialize();
- })();
+})();

@@ -1,9 +1,59 @@
 /* ===================================================================
-   EDITOR.CSS
-   Styling untuk Halaman Editor Postingan
+   EDITOR STYLESHEET
    =================================================================== */
 
-/* === 1. Reset & Pengaturan Dasar Body === */
+:root {
+    /* Layout Dimensions */
+    --header-height: 70px;
+    --navbar-height: 60px; /* Ditambahkan untuk konsistensi */
+    --sidebar-width: 85vw; /* Disesuaikan untuk mobile */
+
+    /* Sizing & Spacing */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --padding-sm: 1rem;
+    --padding-md: 1.5rem;
+
+    /* Fonts */
+    --font-ui: 'Poppins', sans-serif;
+    --font-reading: 'Lora', serif;
+
+    /* Transitions */
+    --transition-fast: all .2s ease-in-out;
+    --transition-smooth: all .3s cubic-bezier(.25, .8, .25, 1);
+
+    /* Main Colors */
+    --bg-primary: #0c1012;
+    --bg-primary-rgb: 12, 16, 18;
+    --bg-secondary: #1a2026;
+    --bg-secondary-rgb: 26, 32, 38;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: #2d3748;
+    --accent-color: #d5c192;
+    --accent-text: #1a202c;
+
+    /* Interactive Element Colors */
+    --interactive-hover-bg: rgba(255, 255, 255, 0.1);
+    --interactive-active-bg: rgba(213, 193, 146, 0.2);
+
+    /* Glassmorphism Effect */
+    --glass-bg: rgba(var(--bg-secondary-rgb), 0.5);
+    --glass-blur: 12px;
+
+    /* Other Variables */
+    --border-style: 1px solid var(--border-color);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --scroll-thumb-color: rgba(255, 255, 255, 0.3);
+
+    /* Stacking Order (Z-Index) */
+    --z-navbar: 500;
+    --z-navbar-panel: 550; /* Untuk panel dropdown di navbar */
+    --z-panel: 1000;
+    --z-loading: 9999;
+}
+
+/* --- Base & Body Configuration --- */
 * {
     margin: 0;
     padding: 0;
@@ -11,117 +61,72 @@
 }
 
 html {
-    /* Mencegah zoom teks saat orientasi perangkat berubah */
+    touch-action: manipulation;
     -webkit-text-size-adjust: 100%;
+    height: 100%;
 }
 
 body.editor-body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-family: var(--font-ui);
-    display: flex; /* Menggunakan flex untuk layout utama */
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; /* Mencegah body scroll, hanya editor yang scroll */
-    line-height: 1.6;
-}
-
-/* === 2. Loader Overlay === */
-.loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(var(--bg-primary-rgb), 0.8);
-    backdrop-filter: blur(5px);
+    height: 96vh;
+    overflow: hidden; /* Mencegah body dari scrolling */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: var(--z-loading);
-    color: var(--text-secondary);
-    transition: opacity 0.3s ease;
 }
 
-.spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--border-color);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* === 3. Layout Utama Aplikasi === */
+/* --- App Main Layout --- */
 .app-main-content {
-    flex-grow: 1; /* Mengisi sisa ruang */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    transition: margin-right var(--transition-smooth); /* Animasi saat panel terbuka */
+    overflow: hidden; /* Konten utama tidak meluap */
+    
 }
 
-/* === 4. Header Utama === */
+/* --- Header --- */
 .main-header.editor-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--padding-sm);
     height: var(--header-height);
-    background-color: var(--bg-secondary);
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(var(--glass-blur)) !important;
     border-bottom: var(--border-style);
-    flex-shrink: 0; /* Mencegah header menyusut */
+    flex-shrink: 0;
 }
 
-.main-header-left,
-.main-header-right {
+.main-header-left {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    flex-grow: 1;
 }
 
-/* Tombol Ikon di Header (Back & Settings) */
-.mobile-menu-toggle {
-    background: none;
-    border: none;
+.main-header button,
+.main-header a {
     color: var(--text-secondary);
-    font-size: 1.2rem;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+    background: transparent;
+    border: none;
     cursor: pointer;
-    transition: var(--transition-fast);
-    text-decoration: none;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
 }
 
-.mobile-menu-toggle:hover {
-    background-color: var(--interactive-hover-bg);
+.main-header button:hover,
+.main-header a:hover {
     color: var(--text-primary);
+    background-color: var(--interactive-hover-bg);
 }
 
-/* Input Judul Postingan */
 input.main-title#post-title-input {
-    /* 1. Menyalin semua gaya dari h1 yang lama */
     font-family: var(--font-ui);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 500;
     color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    /* 2. Menghapus tampilan default input agar tidak terlihat seperti kotak */
     border: none;
     background-color: transparent;
     outline: none;
@@ -130,126 +135,230 @@ input.main-title#post-title-input {
     width: 100%;
 }
 
-/* Gaya Placeholder untuk Judul (cara yang benar untuk <input>) */
 input.main-title#post-title-input::placeholder {
     color: var(--text-secondary);
-    opacity: 1; /* Untuk konsistensi browser */
 }
 
-
-/* === 5. Kontainer & Area Editor Quill === */
+/* --- Editor Area --- */
+/* PERBAIKAN 1: Area scroll utama */
 .editor-container {
     flex-grow: 1;
-    position: relative;
-    overflow-y: auto; /* Scroll hanya di area ini */
+    overflow-y: auto;
+    position: auto;
+    /* Memberi ruang di bawah agar konten tidak tertutup navbar */
+    padding-bottom: calc(var(--navbar-height) + 25px);
 }
 
-/* Penyesuaian Quill Container */
 #quill-editor-container .ql-container.ql-snow {
     border: none;
-    font-size: 16px;
+    background-color: var(--bg-primary);
 }
-
 
 #quill-editor-container .ql-editor {
     font-family: var(--font-reading);
     color: var(--text-primary);
-    line-height: 1.9; 
-    font-size: 17px;  
+    line-height: 1.8;
+    font-size: 1.05rem;
     max-width: 800px;
-    margin: 0 auto; 
-    padding: var(--padding-md) var(--padding-sm);
+    margin: 0 auto;
+    padding: var(--padding-md);
+    min-height: 100%; /* Editor mengisi tinggi container */
 }
 
-#quill-editor-container .ql-editor p {
-    margin-bottom: 1.2rem; /* <-- Memberi jarak antar paragraf */
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3 {
+    color: var(--accent-color);
+    font-family: var(--font-ui);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 
-#quill-editor-container .ql-editor.ql-blank::before {
-    color: var(--text-secondary);
+.ql-editor p {
+    margin-bottom: 1rem;
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--text-secondary) !important;
     font-style: italic;
-    left: var(--padding-sm);
+    left: var(--padding-md) !important;
+    right: var(--padding-md) !important;
 }
 
+/* --- Bottom Navigation Bar --- */
+/* PERBAIKAN 2: Navbar diposisikan tetap di bawah */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px !important;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(var(--glass-blur))!important;
+    -webkit-backdrop-filter: blur(var(--glass-blur))!important;
+    border-top: var(--border-style);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+    z-index: var(--z-navbar); /* Navbar di atas konten, di bawah panel */
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-/* === 6. Panel Samping (Settings) === */
+.bottom-navbar.is-hidden {
+    transform: translateY(100%);
+}
+
+/* --- Quill Custom Toolbar Styling --- */
+#quill-toolbar-container {
+    padding: 0 0.5rem;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible !important; /* Kunci agar panel dropdown bisa muncul */
+    flex-shrink: 0;
+    scrollbar-width: none;
+    border: none !important;
+    background: transparent !important;
+}
+
+#quill-toolbar-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Quill Overrides: Menargetkan class bawaan Quill */
+.bottom-navbar .ql-toolbar.ql-snow {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    
+}
+
+.custom-toolbar .custom-group {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    gap: 4px;
+}
+
+.custom-toolbar button,
+.custom-toolbar .ql-picker {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 5px !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: var(--border-radius-sm) !important;
+    color: var(--text-secondary) !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    cursor: pointer;
+}
+
+/* Styling khusus untuk picker (dropdown) */
+.custom-toolbar .ql-picker {
+    width: auto !important;
+    min-width: 50px;
+    padding: 0 8px !important;
+}
+
+.custom-toolbar .ql-picker-label {
+    color: var(--text-secondary) !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 14px;
+}
+
+/* Hover & Active States */
+.custom-toolbar button:hover,
+.custom-toolbar .ql-picker:hover {
+    color: var(--accent-color) !important;
+    background-color: var(--bg-secondary) !important;
+}
+
+.custom-toolbar .ql-picker:hover .ql-picker-label {
+    color: var(--accent-color) !important;
+}
+
+.custom-toolbar button.ql-active,
+.custom-toolbar .ql-picker.ql-active {
+    background-color: var(--accent-color) !important;
+    color: var(--accent-text) !important;
+}
+
+.custom-toolbar .ql-picker.ql-active .ql-picker-label {
+    color: var(--accent-text) !important;
+}
+
+/* --- Toolbar Drop-up Panels --- */
+.bottom-navbar .ql-picker.ql-expanded .ql-picker-options {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-bottom: 4px !important;
+    background: var(--bg-secondary) !important;
+    backdrop-filter: blur(var(--glass-blur)) !important;
+    border: var(--border-style) !important;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4) !important;
+    padding: 5px !important;
+    border-radius: var(--border-radius-sm) !important;
+    z-index: var(--z-navbar-panel) !important; /* Pastikan panel di atas toolbar lain */
+}
+
+.bottom-navbar .ql-picker-options .ql-picker-item:hover,
+.bottom-navbar .ql-picker-options .ql-picker-item.ql-selected {
+    background-color: var(--accent-color) !important;
+    color: var(--accent-text) !important;
+}
+
+/* --- Settings Panel --- */
 #settings-panel {
     position: fixed;
     top: 0;
     right: 0;
     width: var(--sidebar-width);
     height: 100%;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border-left: var(--border-style);
-    z-index: var(--z-panel);
+    z-index: var(--z-panel); /* z-index panel lebih tinggi dari navbar */
     display: flex;
     flex-direction: column;
-
-    transform: translateX(100%); /* Sembunyikan di luar layar */
-    transition: var(--transition-smooth);
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border-left: var(--border-style);
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.4);
 }
 
 #settings-panel.is-open {
     transform: translateX(0);
-    box-shadow: var(--shadow-md);
 }
 
-/* Header Panel */
 .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 var(--padding-sm);
+    padding: 0 var(--padding-md);
     height: var(--header-height);
     border-bottom: var(--border-style);
     flex-shrink: 0;
 }
 
-.panel-header h3 {
-    font-size: 1rem;
-    font-weight: 500;
-}
-
 .modal-close-btn {
     background: none;
     border: none;
-    font-size: 1.8rem;
     color: var(--text-secondary);
+    font-size: 1.8rem;
     cursor: pointer;
-    line-height: 1;
-    transition: var(--transition-fast);
+    padding: 0.5rem;
 }
 
-.modal-close-btn:hover {
-    color: var(--text-primary);
-    transform: rotate(90deg);
-}
-
-/* Body Panel */
 .panel-body {
     flex-grow: 1;
     overflow-y: auto;
     padding: var(--padding-md);
 }
 
-/* Grup Pengaturan */
-.setting-group {
-    margin-bottom: 2rem;
-}
-
-.setting-group-title {
-    display: block;
-    margin-bottom: 1rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.5px;
-}
-
-/* Footer Panel */
 .panel-footer {
     display: flex;
     gap: 1rem;
@@ -259,17 +368,13 @@ input.main-title#post-title-input::placeholder {
     flex-shrink: 0;
 }
 
-/* Tombol Aksi di Footer Panel */
 .action-button {
     flex-grow: 1;
-    padding: 10px 16px;
-    font-family: var(--font-ui);
-    font-weight: 500;
-    font-size: 0.9rem;
-    border: none;
+    padding: 12px 15px;
     border-radius: var(--border-radius-sm);
+    font-weight: 500;
     cursor: pointer;
-    transition: var(--transition-fast);
+    border: none;
 }
 
 .action-button.primary {
@@ -277,73 +382,54 @@ input.main-title#post-title-input::placeholder {
     color: var(--accent-text);
 }
 
-.action-button.primary:hover {
-    opacity: 0.9;
-    box-shadow: 0 2px 8px rgba(213, 193, 146, 0.3);
-}
-
 .action-button.secondary {
-    background-color: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-}
-
-.action-button.secondary:hover {
-    background-color: var(--interactive-hover-bg);
+    background-color: var(--border-color);
     color: var(--text-primary);
 }
 
-
-/* === 7. Kustomisasi Toolbar Quill di Panel === */
-#quill-toolbar-container {
-    background-color: rgba(var(--bg-primary-rgb), 0.5);
-    border: var(--border-style);
-    border-radius: var(--border-radius-md);
-    padding: 8px;
+/* --- Loader Overlay --- */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--bg-primary-rgb), 0.9);
+    backdrop-filter: blur(8px);
+    z-index: var(--z-loading);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-#quill-toolbar-container .ql-formats {
-    margin-right: 10px !important;
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--accent-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
 }
 
-#quill-toolbar-container button,
-#quill-toolbar-container .ql-picker-label {
-    color: var(--text-secondary) !important;
-    transition: var(--transition-fast);
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* --- Widget Info di Panel Samping (GAYA ORIGINAL) --- */
+
+.setting-group-title {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem; /* Menambah sedikit jarak */
 }
 
-#quill-toolbar-container button:hover,
-#quill-toolbar-container .ql-picker-label:hover {
-    color: var(--text-primary) !important;
-    background-color: var(--interactive-hover-bg);
-}
-
-#quill-toolbar-container button.ql-active,
-#quill-toolbar-container .ql-picker-item.ql-selected {
-    color: var(--accent-color) !important;
-}
-
-#quill-toolbar-container .ql-stroke {
-    stroke: var(--text-secondary) !important;
-}
-
-#quill-toolbar-container button:hover .ql-stroke,
-#quill-toolbar-container .ql-picker-label:hover .ql-stroke {
-    stroke: var(--text-primary) !important;
-}
-
-#quill-toolbar-container .ql-picker-options {
-    background-color: var(--bg-secondary) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-primary);
-}
-
-/* === 8. Widget Info Postingan === */
 .post-info-widget {
-    background-color: rgba(var(--bg-primary-rgb), 0.5);
+    background-color: rgba(var(--bg-primary-rgb), 0.7);
     border: var(--border-style);
     border-radius: var(--border-radius-md);
-    padding: var(--padding-sm);
+    padding: 0 var(--padding-sm);
     font-size: 0.9rem;
 }
 
@@ -351,196 +437,48 @@ input.main-title#post-title-input::placeholder {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 12px 0;
 }
 
 .info-item:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
 }
 
-.info-label {
-    color: var(--text-secondary);
-}
-
-.info-value {
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-/* Status Label Styling */
+/* Kunci utama ada di sini, mengembalikan ke gaya asli */
 .info-value.draft-status,
 .info-value.live-status {
     padding: 3px 8px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.8rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: 700;
+    text-transform: none; /* Memastikan tidak ada paksaan jadi huruf besar */
 }
 
 .info-value.draft-status {
-    background-color: rgba(148, 163, 184, 0.2); /* --text-secondary dengan alpha */
-    color: var(--text-secondary);
+    background-color: rgba(148, 163, 184, 0.2);
+    color: #ccc; /* Mengembalikan warna abu-abu asli */
 }
 
 .info-value.live-status {
-    background-color: rgba(56, 189, 248, 0.2); /* Contoh warna biru muda */
+    background-color: rgba(56, 189, 248, 0.2);
     color: #7dd3fc;
 }
 
-/* === 9. Kustomisasi Scrollbar === */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scroll-thumb-color);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
-/* Ganti #notification-container dengan style overlay ini */
-.notification-overlay {
-    position: fixed; /* Memenuhi seluruh layar */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Latar belakang gelap transparan */
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    z-index: 9999;
-    display: flex; /* Kunci untuk menengahkan panel */
-    justify-content: center;
-    align-items: center;
-    opacity: 0; /* Awalnya transparan untuk animasi */
-    animation: fadeIn 0.3s ease forwards;
-}
-
-/* Ubah nama .toast-notification menjadi .notification-panel agar lebih jelas */
-.notification-panel {
-    min-width: 320px;
-    max-width: 450px;
-    padding: 24px;
-    border-radius: var(--border-radius-md);
-    background-color: rgba(var(--bg-secondary-rgb), 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--shadow-lg);
-    text-align: center;
-    display: flex;
-    flex-direction: column; /* Icon, teks, dan tombol tersusun ke bawah */
-    align-items: center;
-    gap: 15px;
-    transform: scale(0.95); /* Awalnya sedikit kecil untuk animasi */
-    animation: scaleUp 0.3s ease 0.1s forwards;
-}
-
-/* Styling untuk icon */
-.notification-panel .icon {
-    font-size: 2.5rem; /* Lebih besar */
-    margin-bottom: 5px;
-}
-
-/* Styling untuk teks pesan */
-.notification-panel span {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #e5e7eb; /* Warna teks agar lebih mudah dibaca */
-}
-
-/* Styling untuk tombol OK */
-.notification-button {
-    margin-top: 15px;
-    padding: 10px 30px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background-color: transparent;
-    color: #fff;
-    font-weight: 600;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.notification-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Warna spesifik untuk success & error */
-.notification-panel.success .icon { color: #34d399; }
-.notification-panel.error .icon { color: #f87171; }
-
-/* Animasi untuk overlay dan panel */
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-@keyframes scaleUp {
-    to { transform: scale(1); }
-}
-
-/* Animasi saat ditutup */
-.notification-overlay.closing {
-    animation: fadeOut 0.3s ease forwards;
-}
-.notification-overlay.closing .notification-panel {
-    animation: scaleDown 0.3s ease forwards;
-}
-
-@keyframes fadeOut {
-    to { opacity: 0; }
-}
-
-@keyframes scaleDown {
-    to { transform: scale(0.95); }
-}
-
-/* Animasi baru yang lebih andal */
-@keyframes slideInAndFadeOut {
-    0% {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    15%, 85% { /* Tetap terlihat selama beberapa detik */
-        opacity: 1;
-        transform: translateX(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-}
-
-
-/* === 10. Desain Responsif === */
-@media (max-width: 768px) {
-    #settings-panel {
-        width: 90vw; /* Lebar panel di mobile */
-        max-width: 350px; /* Batas lebar maksimum */
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+    :root {
+        --sidebar-width: 60vw;
     }
 
-    #quill-editor-container .ql-editor {
-        max-width: 100%; /* Gunakan lebar penuh di mobile */
-        padding: var(--padding-md) 1rem;
-    }
-    
     .main-header.editor-header {
         padding: 0 0.5rem;
     }
 
-    .main-header-left, .main-header-right {
-        gap: 0.5rem;
+    input.main-title#post-title-input {
+        font-size: 1rem;
     }
 
-    input.main-title#post-title-input {
-    font-size: 1rem;
-
-        
+    #quill-editor-container .ql-editor {
+        padding: 1rem;
     }
 }
