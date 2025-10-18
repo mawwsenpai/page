@@ -1,349 +1,414 @@
-/**
- * =================================================================================
- * File: profile.js (Versi Final Stabil)
- * Deskripsi: Mengelola semua logika untuk halaman profil pengguna.
- * Alur Kerja:
- * 1. Inisialisasi Firebase & Google API Client (GAPI).
- * 2. Cek status login pengguna.
- * 3. Tampilkan data profil awal dari Akun Google (untuk UI yang responsif).
- * 4. Cek Firebase RTDB untuk melihat apakah profil Blogger sudah pernah dibuat.
- * - JIKA SUDAH ADA: Ambil data final dari postingan Blogger & perbarui UI.
- * - JIKA BELUM ADA: Jalankan alur setup pengguna baru secara otomatis.
- * 5. Sediakan fungsi untuk mengedit dan menyimpan profil.
- *
- * DEPENDENSI:
- * - config.js (Wajib terisi dengan API Keys & Client ID yang benar)
- * - Firebase SDK & Google API Client (dimuat di profile.html)
- * =================================================================================
- */
+// File: js/main.js (Versi Final Paling Lengkap - Perbaikan Tombol Tambah Novel)
+(() => {
+    // --- 1. KONFIGURASI & INISIALISASI ---
 
-// Menjalankan kode setelah seluruh halaman dan API eksternal siap
-window.onload = () => {
-
-    // --- 1. INISIALISASI & KONFIGURASI ---
-    let firebaseApp, auth, database;
-    try {
-        // Inisialisasi Firebase dari objek 'config' di file config.js
-        firebaseApp = firebase.initializeApp(config.firebase);
-        auth = firebase.auth();
-        database = firebase.database();
-    } catch (e) {
-        console.error("Firebase Gagal Inisialisasi:", e);
-        alert("FATAL ERROR: Gagal memuat Firebase! Periksa kembali file config.js Anda.");
+    if (typeof config.gapi.scope !== 'string' || config.gapi.scope === '') {
+        alert("FATAL ERROR: 'scope' di konfigurasi main.js tidak valid! Cek kembali file main.js.");
         return;
     }
 
+    firebase.initializeApp(config.firebase);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
     // --- 2. STATE APLIKASI ---
-    const appState = {
-        currentUser: null,
-        userProfilePointer: null, // Berisi { blogId, postId, blogPostUrl } dari Firebase
-        gapiTokenClient: null,
-        isGapiReady: false,
-        currentProfileData: null, // Cache untuk data profil final dari Blogger
-    };
+    const appState = { currentUser: null, currentBlogId: null, isGapiReady: false, allPosts: [] };
 
     // --- 3. ELEMEN DOM ---
-    // Mengambil semua elemen yang dibutuhkan sekali saja untuk performa
     const dom = {
-        loadingOverlay: document.getElementById('loading-overlay'),
-        loadingText: document.querySelector('#loading-overlay .loading-text'),
-        profileView: document.getElementById('user-profile-view'),
-        profileMainPanel: document.getElementById('profile-main-panel'),
-        profileImg: document.getElementById('profile-img'),
-        profileName: document.getElementById('profile-name'),
-        profileEmail: document.getElementById('profile-email'),
-        profileDesc: document.getElementById('profile-desc'),
-        socialLinksView: document.getElementById('social-links-view'),
-        editProfileBtn: document.getElementById('edit-profile-btn'),
-        logoutBtn: document.getElementById('logout-btn-profile'),
-        bloggerConnectContainer: document.getElementById('blogger-connect-container'),
-        editModal: document.getElementById('edit-profile-modal'),
-        editImgPreview: document.getElementById('profile-edit-img'),
-        editPhotoInput: document.getElementById('profile-edit-photo'),
-        editName: document.getElementById('profile-edit-name'),
-        editDesc: document.getElementById('profile-edit-desc'),
-        editSocial: { tiktok: document.getElementById('social-tiktok'), instagram: document.getElementById('social-instagram'), youtube: document.getElementById('social-youtube'), facebook: document.getElementById('social-facebook') },
-        saveProfileBtn: document.getElementById('save-profile-btn'),
-        modalCloseBtns: document.querySelectorAll('.modal-close-btn'),
-        postsSection: document.getElementById('profile-posts-section'),
-        postsScroller: document.getElementById('profile-posts-scroller'),
-        postsLoading: document.getElementById('profile-posts-loading'),
+        loader: document.getElementById('loader'),
+        sidebar: document.getElementById('app-sidebar'),
+        mainLayout: document.querySelector('.main-layout'),
+        dashboardView: document.getElementById('dashboard-view'),
+        analysisView: document.getElementById('analysis-view'),
+        analysisSelection: document.getElementById('analysis-selection'),
+        analysisDetail: document.getElementById('analysis-detail'),
+        initialBlogSelectionView: document.getElementById('initial-blog-selection-view'),
+        dashboardEmptyState: document.getElementById('dashboard-empty-state'),
+        sidebarToggleBtn: document.getElementById('sidebar-toggle-btn'),
+        backToAnalysisSelectionBtn: document.getElementById('back-to-analysis-selection'),
+        blogNameHeader: document.getElementById('blog-name-header'),
+        welcomeTitle: document.getElementById('welcome-title'),
+        initialBlogList: document.getElementById('initial-blog-list'),
+        novelListContainer: document.getElementById('novel-list-container'),
+        analysisNovelList: document.getElementById('analysis-novel-list'),
+        analysisDetailTitle: document.getElementById('analysis-detail-title'),
+        analysisDetailList: document.getElementById('analysis-detail-list'),
+        addNovelModal: document.getElementById('add-novel-modal'),
+        closeAddNovelModal: document.getElementById('close-add-novel-modal'),
+        novelTitleInput: document.getElementById('novel-title-input'),
+        createNovelBtn: document.getElementById('create-novel-btn'),
     };
 
     // --- 4. FUNGSI UTAMA & ALUR KERJA ---
 
-    // Fungsi inisialisasi utama yang dijalankan pertama kali
     async function initialize() {
         setupEventListeners();
-        showLoading("Mempersiapkan aplikasi...");
+        toggleLoader(true);
         try {
             await loadGapiClient();
             auth.onAuthStateChanged(handleAuthStateChange);
         } catch (error) {
             console.error("Gagal inisialisasi GAPI:", error);
-            showNotification("Gagal memuat komponen Google. Silakan refresh halaman.", true);
-            hideLoading();
+            showErrorState("Gagal memuat komponen Google.");
         }
     }
 
-    // Menangani perubahan status login (saat login berhasil atau saat logout)
-    function handleAuthStateChange(user) {
+    async function handleAuthStateChange(user) {
+        toggleAllViews(false);
         if (user) {
             appState.currentUser = user;
-            dom.profileEmail.textContent = user.email;
-            displayInitialProfile(user); // Tampilkan data awal SEGERA
-            checkUserProfileExistence(); // Cek data final di latar belakang
+            const tokenFromDb = await getUserDataFromDb(user.uid, 'bloggerAccessToken');
+            if (tokenFromDb) {
+                gapi.client.setToken({ access_token: tokenFromDb });
+                renderSidebar('main');
+                const selectedBlogId = await getUserDataFromDb(user.uid, 'selectedBlogId');
+                if (selectedBlogId) {
+                    appState.currentBlogId = selectedBlogId;
+                    const blog = await callBloggerApi(() => gapi.client.blogger.blogs.get({ blogId: appState.currentBlogId }));
+                    await fetchAllPosts();
+                    await renderDashboard();
+                } else {
+                    await renderInitialBlogSelection();
+                }
+            } else {
+                await refreshToken();
+            }
         } else {
-            window.location.href = "main.html"; // Jika logout, kembali ke halaman utama
+            renderSidebar('guest');
+            updateUIForGuest();
+            toggleLoader(false);
+        }
+    }
+    
+    async function fetchAllPosts() {
+        toggleLoader(true);
+        try {
+            const response = await callBloggerApi(() => gapi.client.blogger.posts.list({
+                blogId: appState.currentBlogId, maxResults: 500, status: ['live', 'draft'], fetchImages: true, view: 'AUTHOR'
+            }));
+            appState.allPosts = response?.result?.items || [];
+        } catch (error) {
+            console.error("Gagal mengambil semua post:", error);
+            appState.allPosts = [];
+        } finally {
+            toggleLoader(false);
         }
     }
 
-    // Menampilkan data profil awal dari Akun Google untuk UX yang lebih baik
-    function displayInitialProfile(user) {
-        dom.profileImg.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'U')}&background=random`;
-        dom.profileName.innerHTML = `${user.displayName || "Pengguna"} <i class="fas fa-spinner fa-spin" style="font-size: 0.8em; color: var(--text-secondary);" title="Menyelaraskan data..."></i>`;
-        dom.profileDesc.textContent = "Menyelaraskan dengan data cloud...";
-        dom.profileMainPanel.style.display = 'block';
-        dom.bloggerConnectContainer.style.display = 'none';
-        dom.postsSection.style.display = 'block';
-        dom.postsLoading.textContent = "Memuat postingan...";
-        hideLoading(); // Sembunyikan loading utama setelah data awal tampil
-    }
+    async function renderDashboard() {
+        dom.blogNameHeader.textContent = 'Beranda Novel';
+        toggleAllViews(false);
+        dom.dashboardView.classList.remove('hidden');
 
-    // Mengecek apakah pengguna sudah punya profil di Firebase RTDB
-    function checkUserProfileExistence() {
-        if (!appState.currentUser) return;
-        const userProfileRef = database.ref(`profiles/${appState.currentUser.uid}`);
-        userProfileRef.once('value').then(snapshot => {
-            if (snapshot.exists()) {
-                appState.userProfilePointer = snapshot.val();
-                fetchProfileFromBlogger(appState.userProfilePointer.blogId, appState.userProfilePointer.postId);
-                fetchPostsFromBlogger(appState.userProfilePointer.blogId);
-            } else {
-                handleFirstTimeSetup(); // Pengguna baru, mulai alur otomatis
+        const novelMap = new Map();
+        appState.allPosts.forEach(post => post.labels?.forEach(label => {
+            if (!novelMap.has(label)) novelMap.set(label, { post: null, count: 0 }); // Inisialisasi 'post' sebagai null
+        }));
+        
+        // Cari gambar sampul (post pertama dengan gambar) & hitung jumlah bab
+        appState.allPosts.forEach(post => post.labels?.forEach(label => {
+            if (novelMap.has(label)) {
+                const novelData = novelMap.get(label);
+                novelData.count++;
+                if (!novelData.post && post.images && post.images.length > 0) {
+                    novelData.post = post; // Set post pertama dengan gambar sebagai sampul
+                }
             }
-        }).catch(error => {
-            console.error("Gagal cek Firebase RTDB:", error);
-            showNotification("Gagal memeriksa data profil.", true);
+        }));
+        
+        dom.novelListContainer.innerHTML = '';
+        const addCard = document.createElement('div');
+        addCard.className = 'create-label-card';
+        addCard.innerHTML = `<div class="icon-placeholder"><i class="fas fa-plus-circle"></i><span>Buat Novel Baru</span></div>`;
+        addCard.onclick = () => dom.addNovelModal.classList.remove('hidden');
+        
+        const novelCards = Array.from(novelMap.entries()).map(([label, { post, count }]) => {
+            // 1. Cek apakah ada gambar sampul
+            const hasCover = post?.images?.[0]?.url;
+            
+            // 2. Siapkan class dan URL gambar berdasarkan kondisi
+            const cardClass = hasCover ? '' : 'no-cover';
+            const imgUrl = hasCover ?
+                post.images[0].url.replace(/\/s\d+(-c)?\//, '/w200-h300-c/') :
+                'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                
+            const cardLink = document.createElement('a');
+            cardLink.href = `bab.html?blogId=${appState.currentBlogId}&label=${encodeURIComponent(label)}`;
+            cardLink.className = 'tag-card-link';
+            cardLink.innerHTML = `
+                <div class="tag-card">
+                    <div class="tag-card-cover"><img src="${imgUrl}" alt="${label}"></div>
+                    <div class="tag-card-info"><h3 class="tag-card-title">${label}</h3></div>
+                    <div class="analysis-overlay">
+                        <h4 class="analysis-title">${label}</h4>
+                        <span class="analysis-label">${count} Total Bab</span>
+                    </div>
+                </div>`;
+            return cardLink;
+        });
+
+        dom.novelListContainer.replaceChildren(addCard, ...novelCards);
+    }
+    
+    function renderAnalysisView() {
+        dom.blogNameHeader.textContent = 'Analisis Novel'; //
+        toggleAllViews(false);
+        dom.analysisView.classList.remove('hidden');
+        dom.analysisSelection.classList.remove('hidden');
+        dom.analysisDetail.classList.add('hidden');
+        
+        const novelMap = new Map();
+        appState.allPosts.forEach(post => post.labels?.forEach(label => {
+            if (!novelMap.has(label)) novelMap.set(label, true);
+        }));
+
+        dom.analysisNovelList.innerHTML = '';
+        novelMap.forEach((_, label) => {
+            const div = document.createElement('div');
+            div.className = 'initial-blog-list-item';
+            div.innerHTML = `<h3>${label}</h3>`;
+            div.onclick = () => renderAnalysisDetail(label);
+            dom.analysisNovelList.appendChild(div);
         });
     }
 
-    // Alur setup otomatis untuk pengguna baru
-    async function handleFirstTimeSetup() {
-        showLoading("Mempersiapkan profil perdana Anda...");
-        try {
-            await requestGapiToken(true); // Paksa minta izin pertama kali
-            const { blogId, postId, postUrl, defaultData } = await createInitialBloggerProfile();
-            const profilePointer = { blogId, postId, blogPostUrl: postUrl };
-            await database.ref(`profiles/${appState.currentUser.uid}`).set(profilePointer);
+    function renderAnalysisDetail(label) {
+        dom.analysisSelection.classList.add('hidden');
+        dom.analysisDetail.classList.remove('hidden');
+        dom.analysisDetailTitle.textContent = `Analisis: ${label}`;
+        
+        const postsInNovel = appState.allPosts.filter(p => p.labels?.includes(label));
+        
+        dom.analysisDetailList.innerHTML = '';
+        if (postsInNovel.length > 0) {
+            const header = document.createElement('div');
+            header.className = 'chapter-list-header';
+            header.innerHTML = `<div class="col-title">Judul Bab</div><div class="col-views">Tayangan</div><div class="col-comments">Komentar</div><div class="col-date">Tanggal</div>`;
             
-            appState.userProfilePointer = profilePointer;
-            appState.currentProfileData = defaultData;
-            displayFinalProfile(defaultData);
-            fetchPostsFromBlogger(blogId);
-
-            hideLoading();
-            showNotification("Profil Anda berhasil dibuat secara otomatis!");
+            const list = document.createElement('div');
+            list.className = 'chapter-list';
+            postsInNovel.forEach(post => {
+                const item = document.createElement('div');
+                item.className = 'chapter-item';
+                const publishDate = new Date(post.published).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                item.innerHTML = `
+                    <div class="chapter-item-title">${post.title}</div>
+                    <div class="chapter-item-meta">
+                        <div class="meta-item views"><i class="fas fa-eye icon"></i><span>${post.pageviews || 'N/A'}</span></div>
+                        <div class="meta-item comments"><i class="fas fa-comments icon"></i><span>${post.replies.totalItems}</span></div>
+                        <div class="meta-item date"><span>${publishDate}</span></div>
+                    </div>`;
+                list.appendChild(item);
+            });
+            dom.analysisDetailList.replaceChildren(header, list);
+        } else {
+            dom.analysisDetailList.innerHTML = '<p>Tidak ada bab untuk dianalisis.</p>';
+        }
+    }
+    
+    async function renderInitialBlogSelection() {
+        toggleLoader(true);
+        toggleAllViews(false);
+        dom.initialBlogSelectionView.classList.remove('hidden');
+        dom.welcomeTitle.textContent = `Selamat Datang, ${appState.currentUser.displayName}!`;
+        dom.initialBlogList.innerHTML = `<p>Memuat daftar blog...</p>`;
+        try {
+            const response = await callBloggerApi(() => gapi.client.blogger.blogs.listByUser({ userId: 'self' }));
+            if (!response) return;
+            const blogs = response.result.items || [];
+            dom.initialBlogList.innerHTML = '';
+            if (blogs.length > 0) {
+                blogs.forEach(blog => {
+                    const div = document.createElement('div');
+                    div.className = 'initial-blog-list-item';
+                    div.innerHTML = `<h3>${blog.name}</h3>`;
+                    div.onclick = () => selectBlog(blog.id);
+                    dom.initialBlogList.appendChild(div);
+                });
+            } else {
+                dom.initialBlogList.innerHTML = '<p>Anda tidak memiliki blog. Buat dulu di Blogger.com</p>';
+            }
         } catch (error) {
-            console.error("Setup Gagal:", error);
-            showNotification("Gagal membuat profil: " + error.message, true);
-            dom.bloggerConnectContainer.style.display = 'block';
-            dom.profileMainPanel.style.display = 'none';
-            hideLoading();
+            console.error("Gagal memuat daftar blog:", error);
+        } finally {
+            toggleLoader(false);
         }
     }
 
-    // --- 5. FUNGSI INTERAKSI DENGAN BLOGGER API (Bagian Paling Penting) ---
+    // --- 5. FUNGSI AKSI & EVENT HANDLER ---
 
-    // Wrapper API cerdas yang menangani token kedaluwarsa (401)
-    async function callBloggerApi(apiCall) {
-        if (!appState.isGapiReady) throw new Error("Google API Client belum siap.");
+    async function refreshToken() {
+        console.log("Memulai proses penyegaran token...");
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope(config.gapi.scope);
+        provider.setCustomParameters({ prompt: 'consent' });
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            const token = result.credential?.accessToken;
+            if (!token) throw new Error("Gagal mendapatkan accessToken baru.");
+            gapi.client.setToken({ access_token: token });
+            await db.ref(`users/${user.uid}`).update({ displayName: user.displayName, email: user.email, photoURL: user.photoURL, bloggerAccessToken: token });
+            console.log("Token baru berhasil disimpan.");
+            await handleAuthStateChange(user);
+        } catch (error) {
+            console.error("Gagal menyegarkan token:", error);
+            await auth.signOut();
+            showErrorState("Gagal mendapatkan izin dari Google. Silakan coba login kembali.");
+        }
+    }
+
+    async function callBloggerApi(apiCall, retryCount = 1) {
+        if (!appState.isGapiReady) throw new Error("GAPI client belum siap.");
         try {
             return await apiCall();
         } catch (error) {
-            if (error.result?.error?.code === 401) {
-                console.warn("API call gagal (401 Unauthorized). Meminta otorisasi ulang...");
-                showNotification("Sesi Google Anda berakhir. Harap berikan izin lagi.");
-                await requestGapiToken(true);
-                return await apiCall(); // Coba lagi
-            }
-            if (error.result?.error) {
-                 const gError = error.result.error;
-                 throw new Error(`Google API Error: ${gError.message} (Code: ${gError.code})`);
+            if (error.result?.error?.code === 401 && retryCount > 0) {
+                console.warn("API call gagal (401). Mencoba refresh token...");
+                await refreshToken();
+                return;
             }
             throw error;
         }
     }
-
-    // Fungsi untuk meminta otorisasi (dengan Promise)
-    function requestGapiToken(forcePrompt = false) {
-        return new Promise((resolve, reject) => {
-            if (!forcePrompt && gapi.client.getToken()) return resolve();
-            appState.gapiTokenClient.callback = (tokenResponse) => {
-                if (tokenResponse.error) reject(new Error("Otorisasi Gagal: " + (tokenResponse.error_description || tokenResponse.error)));
-                else resolve();
-            };
-            appState.gapiTokenClient.requestAccessToken(forcePrompt ? { prompt: 'consent' } : { hint: appState.currentUser.email });
-        });
-    }
-
-    // Membuat postingan profil awal secara otomatis
-    async function createInitialBloggerProfile() {
-        showLoading("Mencari blog Anda...");
-        const blogsResponse = await callBloggerApi(() => gapi.client.blogger.blogs.listByUser({ userId: 'self' }));
-        if (!blogsResponse.result.items?.length) throw new Error("Anda tidak memiliki blog. Silakan buat satu di Blogger.com terlebih dahulu.");
-        
-        const blog = blogsResponse.result.items[0];
-        const blogId = blog.id;
-
-        showLoading("Membuat postingan profil di Blogger...");
-        const defaultData = {
-            name: appState.currentUser.displayName || "Pengguna Baru",
-            photo: appState.currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.currentUser.displayName || 'U')}`,
-            desc: "Selamat datang di profil saya! Edit deskripsi ini untuk memperkenalkan diri Anda.",
-            socials: { tiktok: "", instagram: "", youtube: "", facebook: "" }
-        };
-        const newPostResource = { title: appState.currentUser.uid, content: JSON.stringify(defaultData), labels: ["RevisiPro-Profile"] };
-        const createResponse = await callBloggerApi(() => gpi.client.blogger.posts.insert({ blogId, resource: newPostResource, isDraft: false }));
-        if (!createResponse.result?.id) throw new Error("Gagal membuat postingan profil di Blogger.");
-        
-        return { blogId, postId: createResponse.result.id, postUrl: createResponse.result.url, defaultData };
-    }
     
-    // Mengambil data profil final dari postingan Blogger
-    async function fetchProfileFromBlogger(blogId, postId) {
-        try {
-            const response = await callBloggerApi(() => gapi.client.blogger.posts.get({ blogId, postId }));
-            if (!response?.result?.content) throw new Error("Konten postingan profil kosong atau tidak dapat diakses.");
-            const profileData = JSON.parse(response.result.content);
-            appState.currentProfileData = profileData;
-            displayFinalProfile(profileData);
-        } catch (e) {
-            console.error("Gagal mengambil profil final:", e);
-            showNotification(`Gagal memuat data profil final: ${e.message}`, true);
-            dom.profileName.innerHTML += ` <i class="fas fa-exclamation-triangle" style="color: var(--danger-color);" title="Gagal memuat data final: ${e.message}"></i>`;
-        } finally {
-            hideLoading();
-        }
+    async function handleLogin() { await refreshToken(); }
+
+    async function handleLogout() {
+        toggleLoader(true);
+        await auth.signOut();
+        window.location.reload();
     }
 
-    // --- 6. FUNGSI TAMPILAN & EDIT UI ---
-
-    // Menampilkan data final ke UI, menggantikan data awal
-    function displayFinalProfile(data) {
-        dom.profileImg.src = data.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'U')}`;
-        dom.profileName.innerHTML = `${data.name || "Pengguna"} <span class="verified-badge-check" title="Profil Terhubung ke Blogger"></span>`;
-        dom.profileDesc.textContent = data.desc || "Belum ada deskripsi.";
-        dom.socialLinksView.innerHTML = '';
-        const { socials } = data;
-        if (socials) {
-            if (socials.tiktok) dom.socialLinksView.innerHTML += `<a href="https://tiktok.com/@${socials.tiktok}" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>`;
-            if (socials.instagram) dom.socialLinksView.innerHTML += `<a href="https://instagram.com/${socials.instagram}" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>`;
-            if (socials.youtube) dom.socialLinksView.innerHTML += `<a href="https://youtube.com/${socials.youtube}" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>`;
-            if (socials.facebook) dom.socialLinksView.innerHTML += `<a href="https://facebook.com/${socials.facebook}" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>`;
-        }
+    async function selectBlog(blogId) {
+        toggleLoader(true);
+        appState.currentBlogId = blogId;
+        await db.ref(`users/${appState.currentUser.uid}`).update({ selectedBlogId: blogId });
+        await fetchAllPosts();
+        await renderDashboard();
     }
 
-    // Membuka modal edit dengan data terbaru
-    async function openEditModal() {
-        showLoading("Mempersiapkan editor...");
+    async function handleCreateNewNovel() {
+        const novelTitle = dom.novelTitleInput.value.trim();
+        if (!novelTitle) { alert("Judul Novel tidak boleh kosong!"); return; }
+        toggleLoader(true);
+        dom.addNovelModal.classList.add('hidden');
+        dom.novelTitleInput.value = '';
         try {
-            let dataToEdit = appState.currentProfileData;
-            if (!dataToEdit) {
-                if (!appState.userProfilePointer) throw new Error("Profil belum terhubung.");
-                const { blogId, postId } = appState.userProfilePointer;
-                const response = await callBloggerApi(() => gapi.client.blogger.posts.get({ blogId, postId }));
-                dataToEdit = JSON.parse(response.result.content);
-                appState.currentProfileData = dataToEdit;
-            }
-            dom.editImgPreview.src = dataToEdit.photo || "";
-            dom.editName.value = dataToEdit.name || '';
-            dom.editDesc.value = dataToEdit.desc || '';
-            Object.keys(dom.editSocial).forEach(key => { dom.editSocial[key].value = dataToEdit.socials?.[key] || ''; });
-            dom.editModal.classList.add('is-open');
+            const placeholder = await callBloggerApi(() => gapi.client.blogger.posts.insert({
+                blogId: appState.currentBlogId, isDraft: true,
+                resource: { title: `Bab 1: [Judul Bab Pertama Anda]`, content: `<p>Ini adalah placeholder...</p>`, labels: [novelTitle] }
+            }));
+            if (placeholder?.result) {
+                window.location.href = `bab.html?blogId=${appState.currentBlogId}&label=${encodeURIComponent(novelTitle)}`;
+            } else { throw new Error("Gagal membuat postingan placeholder."); }
         } catch (error) {
-            showNotification(`Gagal memuat data untuk diedit: ${error.message}`, true);
-        } finally {
-            hideLoading();
+            console.error("Gagal membuat novel:", error);
+            alert("Gagal membuat novel baru.");
+            toggleLoader(false);
+        }
+    }
+    
+    // --- 6. FUNGSI SIDEBAR & PEMBANTU ---
+    
+    function setupEventListeners() {
+        dom.sidebarToggleBtn.onclick = () => dom.sidebar.classList.toggle('is-open');
+        dom.closeAddNovelModal.onclick = () => {
+            dom.novelTitleInput.value = '';
+            dom.addNovelModal.classList.add('hidden');
+        };
+        dom.createNovelBtn.onclick = handleCreateNewNovel;
+        dom.backToAnalysisSelectionBtn.onclick = renderAnalysisView;
+    
+        document.addEventListener('click', function(event) {
+    if (!dom.sidebar.classList.contains('is-open')) {
+        return;
+    }
+    
+    // GANTI DENGAN CARA YANG LEBIH PINTAR INI
+    const isClickInsideSidebar = event.target.closest('#app-sidebar');
+    const isClickOnToggleButton = event.target.closest('#sidebar-toggle-btn');
+    
+    // Jika kliknya bukan di dalam sidebar DAN bukan di tombol toggle
+    if (!isClickInsideSidebar && !isClickOnToggleButton) {
+        dom.sidebar.classList.remove('is-open');
+        
+    }
+            
+        });
+    }
+    
+    function renderSidebar(state) {
+        let content = '';
+        if (state === 'guest') {
+            content = `<div class="sidebar-header"><h2 class="sidebar-title">Dashboard</h2></div><div class="sidebar-content"><div class="control-group"><h3 class="control-group-title">Akun</h3><ul class="nav-list"><li><a class="nav-link" href="#" id="login-btn"><i class="fas fa-sign-in-alt"></i><span>Login</span></a></li></ul></div></div>`;
+        } else if (state === 'main') {
+            const user = appState.currentUser;
+            content = `<div class="sidebar-header"><h2 class="sidebar-title">Dashboard</h2><button id="close-sidebar-btn" class="modal-close-btn">&times;</button></div><div class="sidebar-content"><div class="profile-card"><img id="profile-avatar" src="${user.photoURL || ''}" alt="Avatar"><h3 id="profile-name">${user.displayName}</h3><p id="profile-email">${user.email}</p></div><div class="control-group"><h3 class="control-group-title">Menu</h3><ul class="nav-list"><li><a class="nav-link" href="#" id="nav-beranda"><i class="fas fa-home"></i><span>Beranda Novel</span></a></li><li><a class="nav-link" href="#" id="nav-analisis"><i class="fas fa-chart-line"></i><span>Analisis Novel</span></a></li></ul></div><div class="control-group"><h3 class="control-group-title">Akun</h3><ul class="nav-list"><li><a class="nav-link" href="#" id="switch-blog-btn"><i class="fas fa-exchange-alt"></i><span>Ganti Blog</span></a></li><li><a class="nav-link" href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li></ul></div></div>`;
+        } else if (state === 'blog-selection') {
+            content = `<div class="sidebar-header"><button id="back-to-menu-btn" class="modal-close-btn">&larr;</button><h2 class="sidebar-title">Pilih Blog</h2></div><div class="sidebar-content"><ul class="nav-list" id="sidebar-blog-list"><li>Memuat...</li></ul></div>`;
+        }
+        dom.sidebar.innerHTML = content;
+        attachSidebarEventListeners(state);
+    }
+    
+    function attachSidebarEventListeners(state) {
+        if (state === 'guest') {
+            document.getElementById('login-btn').onclick = handleLogin;
+        } else if (state === 'main') {
+            document.getElementById('logout-btn').onclick = handleLogout;
+            document.getElementById('close-sidebar-btn').onclick = () => dom.sidebar.classList.remove('is-open');
+            document.getElementById('nav-beranda').onclick = (e) => { e.preventDefault(); renderDashboard(); dom.sidebar.classList.remove('is-open'); };
+            document.getElementById('nav-analisis').onclick = (e) => { e.preventDefault(); renderAnalysisView(); dom.sidebar.classList.remove('is-open'); };
+            document.getElementById('switch-blog-btn').onclick = () => { // Hapus async dari sini
+    // INI DIA JURUS PAMUNGKASNYA
+    setTimeout(async () => { // Pindahkan async ke sini
+        renderSidebar('blog-selection');
+        const listEl = document.getElementById('sidebar-blog-list');
+        try {
+            const response = await callBloggerApi(() => gapi.client.blogger.blogs.listByUser({ userId: 'self' }));
+            if (!response) return;
+            const blogs = response.result.items || [];
+            listEl.innerHTML = '';
+            blogs.forEach(blog => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" class="nav-link">${blog.name}</a>`;
+                li.onclick = async (e) => { e.preventDefault(); dom.sidebar.classList.remove('is-open'); await selectBlog(blog.id); };
+                listEl.appendChild(li);
+            });
+        } catch (e) {
+            listEl.innerHTML = '<li>Gagal memuat.</li>';
+        }
+    }, 0); // Jeda 0 milidetik
+};
+        } else if (state === 'blog-selection') {
+            document.getElementById('back-to-menu-btn').onclick = () => renderSidebar('main');
         }
     }
 
-    // Menyimpan perubahan profil
-    async function saveProfileChanges() {
-        showLoading("Menyimpan profil...");
-        const { blogId, postId } = appState.userProfilePointer;
-        if (!blogId || !postId) { hideLoading(); showNotification("Profil tidak terhubung.", true); return; }
-        try {
-            const file = dom.editPhotoInput.files[0];
-            let photoDataUrl = dom.editImgPreview.src;
-            if (file) {
-                showLoading("Memproses gambar...");
-                photoDataUrl = await resizeAndEncodeImage(file);
-            }
-            const newProfileData = {
-                name: dom.editName.value.trim() || "Pengguna", desc: dom.editDesc.value.trim(), photo: photoDataUrl,
-                socials: Object.fromEntries(Object.keys(dom.editSocial).map(key => [key, dom.editSocial[key].value.trim()]))
-            };
-            showLoading("Memperbarui postingan Blogger...");
-            await callBloggerApi(() => gapi.client.blogger.posts.patch({ blogId, postId, resource: { content: JSON.stringify(newProfileData) } }));
-            
-            appState.currentProfileData = newProfileData;
-            showNotification("Profil berhasil diperbarui!");
-            dom.editModal.classList.remove('is-open');
-            displayFinalProfile(newProfileData);
-        } catch (e) { console.error("Gagal menyimpan profil:", e); showNotification("Gagal menyimpan: " + e.message, true); } finally { hideLoading(); }
-    }
-
-
-    // --- 7. FUNGSI PEMBANTU LAINNYA ---
-    
-    // Menyiapkan semua event listener
-    function setupEventListeners() {
-        dom.logoutBtn.addEventListener('click', () => auth.signOut());
-        dom.editProfileBtn.addEventListener('click', openEditModal);
-        dom.saveProfileBtn.addEventListener('click', saveProfileChanges);
-        dom.modalCloseBtns.forEach(btn => btn.addEventListener('click', () => btn.closest('.modal').classList.remove('is-open')));
-        dom.editPhotoInput.addEventListener('change', (e) => {
-            const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { dom.editImgPreview.src = event.target.result; }; reader.readAsDataURL(file); }
-        });
-    }
-
-    // Memuat GAPI Client
     async function loadGapiClient() {
         await new Promise((resolve, reject) => gapi.load('client', { callback: resolve, onerror: reject }));
         await gapi.client.init({ apiKey: config.gapi.apiKey, discoveryDocs: config.gapi.discoveryDocs });
         appState.isGapiReady = true;
     }
-
-    // Helper untuk mengubah ukuran & encode gambar ke Base64
-    function resizeAndEncodeImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
-        return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); let { width, height } = img; if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } } else { if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; } } canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); resolve(canvas.toDataURL('image/jpeg', quality)); }; img.onerror = reject; img.src = e.target.result; }; reader.onerror = reject; reader.readAsDataURL(file); });
+    const getUserDataFromDb = (uid, path = '') => db.ref(`users/${uid}/${path}`).once('value').then(snap => snap.val());
+    const toggleLoader = (show) => dom.loader.classList.toggle('hidden', !show);
+    const toggleAllViews = () => {
+        const views = [dom.dashboardView, dom.analysisView, dom.initialBlogSelectionView, dom.dashboardEmptyState];
+        views.forEach(view => view.classList.add('hidden'));
+    };
+    function updateUIForGuest() {
+        toggleAllViews();
+        dom.dashboardEmptyState.classList.remove('hidden');
+        dom.blogNameHeader.textContent = "Silakan Login";
     }
-
-    // Mengambil daftar postingan untuk ditampilkan di profil
-    async function fetchPostsFromBlogger(blogId) {
-        if (!blogId) return;
-        dom.postsLoading.textContent = "Memuat postingan..."; dom.postsLoading.style.display = 'block';
-        try {
-            const response = await callBloggerApi(() => gapi.client.blogger.posts.list({ blogId, fetchImages: true, maxResults: 10 }));
-            dom.postsScroller.innerHTML = ''; let postCount = 0;
-            if (response.result.items?.length > 0) {
-                response.result.items.forEach(post => {
-                    if (post.title === appState.currentUser.uid) return; postCount++;
-                    let coverImg = "https://placehold.co/150x210/2d3748/94a3b8?text=No+Cover";
-                    if (post.images?.length > 0) coverImg = post.images[0].url;
-                    const tags = (post.labels || []).join(', ');
-                    const cardHTML = `<a href="${post.url}" target="_blank" class="novel-card"><div class="novel-card-cover"><img src="${coverImg}" alt="Cover"/></div><div class="novel-card-info"><h4 class="novel-card-title">${post.title}</h4><div class="novel-card-tags">${tags || 'Tanpa Kategori'}</div></div></a>`;
-                    dom.postsScroller.innerHTML += cardHTML;
-                });
-            }
-            if(postCount === 0) { dom.postsLoading.textContent = "Belum ada postingan lain di blog ini."; dom.postsLoading.style.display = 'block'; } 
-            else { dom.postsLoading.style.display = 'none'; }
-        } catch (e) { console.error("Gagal load posts:", e); dom.postsLoading.textContent = "Gagal memuat postingan."; dom.postsLoading.style.display = 'block'; }
+    function showErrorState(message) {
+        document.body.innerHTML = `<div style="color:red;padding:20px;text-align:center;font-family: var(--font-ui);">${message}</div>`;
+        toggleLoader(false);
     }
     
     // --- 8. JALANKAN APLIKASI ---
     initialize();
 
-}; // Akhir dari window.onload
-
+})();
