@@ -1,5 +1,15 @@
+// =========================================================================
+// main.js - Script untuk Halaman Utama (Home)
+// =========================================================================
+
+// Variabel Global untuk menyimpan data Home (Top 500 posts per blog)
+
+
 document.addEventListener('DOMContentLoaded', () => {
-  
+    
+    /* --- FUNGSI UTILITY & UI (TIDAK BERUBAH) --- */
+    let allCombinedPosts = [];
+    
     function createLatestPostCard(post) {
         const imageUrl = (post.images && post.images.length > 0) ?
             post.images[0].url.replace(/\/s\d+(-c)?\//, '/w800-h450-c/') :
@@ -61,69 +71,118 @@ document.addEventListener('DOMContentLoaded', () => {
         return placeholders;
     }
     
+    /* --- FUNGSI PENGAMBILAN & PENGGABUNGAN DATA (BARU) --- */
+    
+    // Muat & Gabungkan data dari semua blog (Max 500 post per blog untuk Home)
+    async function loadAndCombineAllDataForHome() {
+        console.log(`Memuat data dari ${config.blogIds.length} blog...`);
+        
+        const fetchPromises = config.blogIds.map(blogId => {
+            const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts?key=${config.apiKey}&fetchImages=true&maxResults=500&orderBy=published`;
+            return fetch(apiUrl)
+                .then(response => response.ok ? response.json() : { items: [] })
+                .catch(error => {
+                    console.error(`Gagal memuat dari blog ${blogId}:`, error);
+                    return { items: [] };
+                });
+        });
+        
+        try {
+            const allPostsArrays = await Promise.all(fetchPromises);
+            
+            // Gabungkan SEMUA postingan dan filter yang null
+            let combinedPosts = allPostsArrays.flatMap(data => data.items || []);
+            
+            // Urutkan keseluruhan data gabungan (Terbaru ke Terlama)
+            combinedPosts.sort((a, b) => new Date(b.published) - new Date(a.published));
+            
+            // Simpan di variabel global
+            allCombinedPosts = combinedPosts;
+            
+            console.log(`Total ${allCombinedPosts.length} postingan dimuat dan digabungkan.`);
+            return combinedPosts;
+            
+        } catch (error) {
+            console.error("Gagal memproses data gabungan:", error);
+            return combinedPosts;
+        }
+    }
+    
+    /* --- FUNGSI RENDER (MODIFIKASI) --- */
+    
     async function renderLatestPost() {
         const container = document.getElementById('latest-post-container');
         if (!container) return;
-        container.innerHTML = createLatestPostPlaceholder();
         
-        const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${config.blogId}/posts?key=${config.apiKey}&fetchImages=true&maxResults=1`;
+        // Tampilkan placeholder di awal
+        if (allCombinedPosts.length === 0) {
+            container.innerHTML = createLatestPostPlaceholder();
+            return;
+        }
         
-        try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const data = await response.json();
-            if (!data.items || data.items.length === 0) {
-                container.innerHTML = `<p>Tidak ada postingan terbaru.</p>`;
-                return;
-            }
-            // 2. Ganti placeholder dengan konten asli setelah data didapat
-            container.innerHTML = createLatestPostCard(data.items[0]);
-        } catch (error) {
-            console.error(`Gagal memuat postingan terbaru:`, error);
-            container.innerHTML = `<p>Gagal memuat postingan.</p>`;
+        // Ambil postingan paling terbaru secara keseluruhan dari data gabungan
+        const overallLatestPost = allCombinedPosts[0];
+        
+        if (overallLatestPost) {
+            container.innerHTML = createLatestPostCard(overallLatestPost);
+        } else {
+            container.innerHTML = `<p>Tidak ada postingan terbaru.</p>`;
         }
     }
     
     async function renderCategoryList() {
         const container = document.getElementById('category-list-container');
         if (!container) return;
-        container.innerHTML = createCategoryListPlaceholder(8); 
         
-        try {
-            const allPostsUrl = `https://www.googleapis.com/blogger/v3/blogs/${config.blogId}/posts?key=${config.apiKey}&maxResults=200&fetchImages=true&orderBy=published`;
-            const response = await fetch(allPostsUrl);
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const data = await response.json();
-            if (!data.items) throw new Error("Gagal mengambil daftar postingan.");
-            
-            const labelMap = new Map();
-            const reversedItems = data.items.reverse();
-            
-            reversedItems.forEach(post => {
-                if (post.labels) {
-                    post.labels.forEach(label => {
-                        if (!labelMap.has(label)) {
-                            labelMap.set(label, post);
-                        }
-                    });
-                }
-            });
-            
-            const categories = Array.from(labelMap.entries());
-            if (categories.length === 0) {
-                container.innerHTML = `<p>Tidak ada kategori ditemukan.</p>`;
-                return;
-            }
-            container.innerHTML = categories.map(([label, post]) => createCategoryCard(post, label)).join('');
-        } catch (error) {
-            console.error(`Gagal memuat daftar kategori:`, error);
-            container.innerHTML = `<p>Gagal memuat kategori.</p>`;
+        // Tampilkan placeholder di awal
+        if (allCombinedPosts.length === 0) {
+            container.innerHTML = createCategoryListPlaceholder(8);
+            return;
         }
+        
+        const posts = allCombinedPosts;
+        
+        const labelMap = new Map();
+        
+        // Iterasi dan ambil postingan paling baru sebagai cover kategori
+        posts.forEach(post => {
+            if (post.labels) {
+                post.labels.forEach(label => {
+                    if (!labelMap.has(label)) {
+                        labelMap.set(label, post);
+                    }
+                });
+            }
+        });
+        
+        const categories = Array.from(labelMap.entries());
+        
+        if (categories.length === 0) {
+            container.innerHTML = `<p>Tidak ada kategori ditemukan.</p>`;
+            return;
+        }
+        
+        // Tampilkan hanya 8 kategori teratas (atau sesuai kebutuhan)
+        const topCategories = categories.slice(0, 8);
+        
+        container.innerHTML = topCategories.map(([label, post]) => createCategoryCard(post, label)).join('');
     }
     
-    function initializeHomePage() {
+    /* --- INISIALISASI --- */
+    
+    async function initializeHomePage() {
+        // Tampilkan placeholder saat memuat data
+        document.getElementById('latest-post-container').innerHTML = createLatestPostPlaceholder();
+        document.getElementById('category-list-container').innerHTML = createCategoryListPlaceholder(8);
+        
+        // 1. Muat dan gabungkan data di awal
+        await loadAndCombineAllDataForHome();
+        
+        // 2. Render komponen menggunakan data yang sudah siap
         renderLatestPost();
         renderCategoryList();
+        
+        // (Fitur pencarian di luar scope file ini)
     }
     
     initializeHomePage();

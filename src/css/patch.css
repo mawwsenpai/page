@@ -1,0 +1,19 @@
+/* 1. Matikan seleksi teks (highlight) di seluruh halaman */
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE/Edge */
+    user-select: none; /* Chrome, Firefox, Opera */
+}
+
+/* 2. Bikin gambar 'tembus' mouse */
+img {
+    pointer-events: none; /* Ini kuncinya! */
+    /* Mouse nggak akan bisa interaksi sama gambar (klik kanan, drag, dll) */
+}
+
+/* 3. (Opsional) Tetap izinkan seleksi di form */
+input, textarea {
+    -webkit-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+}

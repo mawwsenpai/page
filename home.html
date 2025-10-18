@@ -6,6 +6,7 @@
     <title>Noveler Plus</title>
     
     <link rel="stylesheet" href="css/root.css"> 
+    <link rel="stylesheet" href="src/css/patch.css"> 
     <link rel="stylesheet" href="css/style.css"> 
     <link rel="stylesheet" href="https://mawwsenpai.github.io/maww-library/style.css"> 
     
@@ -27,18 +28,19 @@
         <div class='control-group'>
             <h3 class='control-group-title'>Akun</h3>
             <ul class='nav-list' id='account-nav-list'>
-                <li><a class='nav-link' href='login.html'><i class='fas fa-sign-in-alt'></i><span>Login / Daftar</span></a></li>
+                <li><a class='nav-link' href='src/profile.html'><i class='fas fa-sign-in-alt'></i><span>Login / Daftar</span></a></li>
             </ul>
         </div>
         
         <div class='control-group'>
-            <h3 class='control-group-title'>Navigasi</h3>
-            <ul class='nav-list'>
-                <li><a class='nav-link active' href='#'><i class='fas fa-home'></i><span>Beranda</span></a></li>
-                <li><a class='nav-link' href='dashboard/main.html'><i class='fas fa-rss'></i><span>Lainnya</span></a>
-                </li>
-            </ul>
-        </div>
+    <h3 class='control-group-title'>Navigasi</h3>
+    <ul class='nav-list'>
+        <li><a class='nav-link active' href='#'><i class='fas fa-home'></i><span>Beranda</span></a></li>
+        
+        <li><a class='nav-link' href='search.html'><i class='fas fa-search'></i><span>Cari Novel</span></a></li>
+        <li><a class='nav-link' href='src/main.html'><i class='fas fa-rss'></i><span>dashboard Penulis</span></a></li>
+        </ul>
+    </div>
         
         <div class="control-group" id="settings-panel-container">
             <h3 class="control-group-title">Pengaturan Tampilan</h3>
@@ -73,12 +75,15 @@
 </aside>
 
     <main class="app-main-content">
-        <header class='main-header'>
-            <div class='main-header-left'>
-                <button id="sidebar-toggle-btn" class='mobile-menu-toggle' title='Buka Menu Navigasi'><i class='fas fa-bars'></i></button>
-                <h1 class='main-title'>Beranda Novel</h1>
-            </div>
-        </header>
+       <header class='main-header'>
+    <div class='main-header-left'>
+        <button id="sidebar-toggle-btn" class='mobile-menu-toggle' title='Buka Menu Navigasi'><i class='fas fa-bars'></i></button>
+        <h1 class='main-title'>Beranda Novel</h1>
+    </div>
+    <div class='main-header-right'>
+        <button id="search-toggle-btn" class='mobile-menu-toggle' title='Cari Novel'><i class='fas fa-search'></i></button>
+    </div>
+    </header>
 
         <div class="blog-section">
             <h2 class="section-title">Terbaru</h2>
@@ -104,5 +109,6 @@
     <script src="js/theme.js" defer></script> 
     <script src="js/script.js" defer></script> 
     <script src="js/home.js" defer></script> 
+    <script src="src/js/patch.js" defer></script> 
 </body>
 </html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="gelap">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cari Novel - Noveler Plus</title>
+    
+    <link rel="stylesheet" href="css/root.css">
+    <link rel="stylesheet" href="src/css/patch.css"> 
+    <link rel="stylesheet" href="css/style.css">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' rel='stylesheet'/>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:wght@400;500;700&display=swap' rel='stylesheet'/>
+</head>
+<body class="no-copy" oncontextmenu="return false;">
+
+    <header class='main-header'>
+        <div class='main-header-left'>
+            <button id="back-button" class='mobile-menu-toggle' title='Kembali'><i class='fas fa-arrow-left'></i></button>
+            
+            <div class="search-input-wrapper-header">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" id="search-input" placeholder="Cari Judul atau Tag..." class="search-input-field">
+            </div>
+            
+        </div>
+    </header>
+
+    <main class="app-main-content">
+        <div class="blog-section">
+            <div id="search-results-container" class="search-results-grid">
+                <p class="info-text" id="initial-message">Masukkan kata kunci untuk mencari novel.</p>
+            </div>
+        </div>
+    </main>
+    
+    <script src="js/config.js"></script> 
+    <script src="js/search.js" defer></script>
+    <script src="src/js/patch.js" defer></script> 
+</body>
+</html>

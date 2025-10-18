@@ -482,14 +482,14 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     text-decoration: none;
     color: var(--text-primary);
     background-color: var(--bg-secondary);
     border: var(--border-style);
-    font-size: 1.2rem;
+    font-size: 0.8rem;
     transition: var(--transition-smooth);
 }
 .share-btn:hover {
@@ -498,7 +498,44 @@ body {
     border-color: var(--accent-color);
     transform: scale(1.1) rotate(5deg);
 }
+/* Container Gabungan untuk Detail dan Share */
+#post-meta-and-share-container {
+    padding: var(--padding-md);
+    max-width: 720px;
+    margin: 0 auto;
+    border-top: var(--border-style);
+    margin-top: var(--padding-md);
+    text-align: center; /* Untuk menengahkan tombol share */
+}
 
+/* Style untuk Wrapper Meta */
+.post-meta-details {
+    margin-bottom: var(--padding-md);
+    padding-bottom: var(--padding-sm);
+    border-bottom: var(--border-style);
+}
+
+/* Style untuk Garis Meta */
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--padding-sm);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Style untuk Setiap Item Meta */
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.meta-item i {
+    color: var(--accent-color);
+}
 
 /* Grup Pengaturan di Panel Settings */
 .control-group {
@@ -750,4 +787,423 @@ body {
 }
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* --- SEARCH PAGE HEADER INTEGRATION --- */
+
+/* Wrapper Input di Header */
+.search-input-wrapper-header {
+    flex-grow: 1; /* Agar mengambil ruang sisa di header */
+    display: flex;
+    align-items: center;
+    background-color: rgba(var(--bg-secondary-rgb), 0.5); /* Semi-transparan */
+    border: 1px solid rgba(var(--border-color-rgb), 0.5); /* Border halus */
+    border-radius: var(--border-radius-md);
+    padding: 0 var(--padding-sm);
+    margin: 0 var(--padding-md); /* Jarak dari tombol kembali */
+    height: 40px; /* Tinggi yang nyaman */
+}
+/* Memastikan search-input-wrapper-header terlihat baik di main-header-left */
+.main-header-left {
+    width: 100%; /* Agar input bisa memanjang */
+}
+
+/* Field Input Pencarian */
+.search-input-field {
+    flex-grow: 1;
+    padding: var(--padding-sm) 0;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+}
+.search-input-field::placeholder {
+    color: var(--text-secondary);
+}
+.search-input-field:focus {
+    color: var(--text-primary);
+}
+
+/* Icon Search */
+.search-icon {
+    color: var(--text-secondary);
+    margin-right: var(--padding-sm);
+}
+
+
+/* --- GRID HASIL PENCARIAN (untuk search-results-grid) --- */
+.search-results-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Default mobile 1 kolom */
+    gap: var(--padding-sm);
+    padding-top: var(--padding-md); /* Jarak dari header/sticky header */
+}
+/* --- TAMPILAN HASIL PENCARIAN BARU (LIST VIEW) --- */
+
+/* Mengubah grid hasil menjadi list flex/grid 1 kolom */
+.search-results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Jarak antar item novel */
+    padding-top: var(--padding-md);
+}
+
+.novel-list-item {
+    display: flex; /* Mengatur layout horizontal */
+    align-items: flex-start; /* Meratakan item ke atas */
+    gap: var(--padding-sm);
+    
+    background-color: var(--bg-secondary);
+    border: var(--border-style);
+    border-radius: var(--border-radius-md);
+    padding: var(--padding-sm);
+    
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition-smooth);
+}
+
+.novel-list-item:hover {
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+/* Cover (Kiri) */
+.novel-cover {
+    flex-shrink: 0; /* Pastikan foto tidak mengecil */
+    width: 80px; /* Lebar thumbnail yang lebih kecil */
+    height: 120px; /* Tinggi thumbnail proporsional */
+    overflow: hidden;
+    border-radius: var(--border-radius-sm);
+}
+.novel-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Info Novel (Kanan) */
+.novel-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.novel-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+}
+
+.novel-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Jarak antara Blog dan Tanggal */
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0 0 10px 0;
+}
+
+.novel-meta .meta-item i {
+    color: var(--accent-color);
+    margin-right: 3px;
+}
+
+.novel-status {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-style: italic;
+}
+
+/* --- LOADING OVERLAY PUSAT (Untuk search.js) --- */
+
+/* Wrapper Overlay */
+#search-loading-overlay {
+    position: fixed; /* Menempel pada viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Efek Glassmorphism (Sesuai tema Anda) */
+    background-color: rgba(var(--bg-primary-rgb), 0.9); /* Sedikit lebih gelap dari header */
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    
+    z-index: 1000; /* Pastikan di atas semua elemen */
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    color: var(--text-primary);
+    transition: opacity 0.3s ease;
+}
+
+#search-loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none; /* Penting agar tidak menghalangi klik saat tersembunyi */
+}
+
+/* Spinner memutar */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pesan di bawah spinner */
+#search-loading-overlay p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* --- IN-PAGE LOADING BARU (Untuk search.js) --- */
+
+/* Kontainer Loading */
+.in-page-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0; /* Memberi ruang di atas dan bawah */
+    color: var(--text-secondary);
+    gap: 15px;
+    font-size: 1rem;
+}
+
+/* Spinner yang lebih kecil untuk in-page */
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Memastikan animasi spin tetap berfungsi */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (min-width: 600px) {
+    .search-results-grid {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+    .search-input-wrapper-header {
+        max-width: 500px; /* Batasi lebar input di desktop */
+    }
+}
+
+
+
+.mobile-view-container {
+    max-width: 450px;
+    width: 100%;
+    height: 100vh;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--padding-md);
+    box-sizing: border-box;
+}
+
+/* --- A. Login Prompt / Auth Card --- */
+
+.auth-prompt-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    padding: 2.5rem 2rem;
+    border-radius: var(--border-radius-lg);
+    border: var(--border-style);
+    box-shadow: var(--shadow-xl);
+    z-index: 10;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 90%;
+    width: 350px;
+}
+
+.auth-prompt-card .title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+.auth-prompt-card #authMessage {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.login-button {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--accent-color);
+    color: var(--accent-text);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    border: none;
+    cursor: pointer;
+    gap: 10px;
+    box-shadow: var(--shadow-md);
+}
+
+.login-button:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+/* --- B. Profile Dashboard View --- */
+
+.profile-dashboard-view {
+    width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-radius: var(--border-radius-lg);
+    border: var(--border-style);
+    box-shadow: var(--shadow-xl);
+    padding: var(--padding-lg);
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: var(--padding-md);
+    margin-bottom: var(--padding-md);
+    border-bottom: var(--border-style);
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: var(--padding-sm);
+    border: 3px solid var(--accent-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+}
+
+.profile-email {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--padding-sm) 0;
+}
+
+.logout-button {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    border: var(--border-style);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-weight: 500;
+}
+
+.logout-button:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* --- Data Blog List & Analisis --- */
+
+.data-section {
+    padding: var(--padding-sm) 0;
+}
+
+.data-section h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-top: 0;
+    padding-bottom: var(--padding-sm);
+    border-bottom: var(--border-style);
+    margin-bottom: var(--padding-md);
+}
+
+.data-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.data-list-item {
+    background-color: var(--bg-secondary);
+    padding: var(--padding-md);
+    border-radius: var(--border-radius-md);
+    border: 1px solid transparent;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.data-list-item:hover {
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-xs);
+}
+
+.data-list-item h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+}
+
+.data-list-item p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+    overflow-wrap: break-word;
+}
+
+.blog-id-display {
+    display: block;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    margin-top: 5px;
+    background: rgba(var(--accent-color-rgb), 0.1);
+    padding: 2px 5px;
+    border-radius: 5px;
+    display: inline-block;
 }

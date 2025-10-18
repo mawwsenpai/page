@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil Saya - RevisiPro Modern</title>
+    <!-- Font Poppins & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Link CSS Eksternal -->
+    <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body data-theme="dark">
+    <!-- Overlay Loading Universal -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text"></p>
+    </div>
+
+    <div class="app-layout">
+        <main class="app-main-content">
+            <!-- Header Fixed -->
+            <header class="main-header">
+                <h1 class="main-title" id="user-profile-title">Profil Saya</h1>
+                <div class="main-header-right">
+                    <button class="app-button outline" id="edit-profile-btn"><i class="fas fa-edit"></i> Edit Profil</button>
+                    <button class="app-button danger" id="logout-btn-profile" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </header>
+
+            <div class="profile-wrapper">
+                <!-- 1. HEADER (Photo & Stats) -->
+                <div class="profile-header">
+                    <div class="profile-photo-container">
+                        <img alt="User Profile Photo" id="profile-img" src="https://ui-avatars.com/api/?name=U&background=random" onerror="this.src='https://ui-avatars.com/api/?name=U&background=random'"/>
+                    </div>
+                    <div class="profile-stats-and-info">
+                        <h2 id="profile-name">Memuat...</h2>
+                        
+                        <div class="stats-wrapper">
+                            <div class="stat-item"><strong id="stat-posts">...</strong> Postingan</div>
+                            <div class="stat-item"><strong id="stat-followers">N/A</strong> Pengikut</div>
+                            <div class="stat-item"><strong id="stat-following">N/A</strong> Mengikuti</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. BIO & SOCIAL -->
+                <div class="profile-bio">
+                    <p id="profile-email" style="font-weight: 600; margin-bottom: 5px; color: var(--text-secondary);"></p>
+                    <p id="profile-desc">Memuat deskripsi...</p>
+                    
+                    <div class="social-links" id="social-links-view">
+                        <!-- Diisi oleh JS -->
+                    </div>
+                </div>
+
+                <!-- 3. TABS (Postingan & Label) -->
+                <div class="profile-tabs">
+                    <button class="tab-button active" data-tab="posts"><i class="fas fa-th-large"></i> Postingan</button>
+                    <button class="tab-button" data-tab="labels"><i class="fas fa-tag"></i> Label/Tag</button>
+                </div>
+
+                <div class="tab-content" id="tab-content-posts">
+                    <div class="novel-list-scroller" id="profile-posts-scroller">
+                        <p class="loading-message" id="profile-posts-loading">Memuat postingan...</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="tab-content-labels" style="display: none;">
+                    <div id="blog-labels-container" class="loading-message">
+                        Memuat label...
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Panel Koneksi Blogger (Tampil jika setup gagal) -->
+            <div id="blogger-connect-container" style="display: none; padding: 2rem; text-align: center; border: 1px dashed var(--border-color); border-radius: var(--border-radius-lg); margin: 2rem auto; max-width: 500px; background-color: var(--bg-secondary);">
+                <i class="fab fa-blogger-b" style="font-size: 4rem; color: var(--accent-color);"></i>
+                <h3 style="margin-top: 1rem;">Hubungkan Akun Blogger</h3>
+                <p style="color: var(--text-secondary);">Anda perlu memberikan izin akses ke salah satu blog Blogger Anda untuk menyimpan data profil.</p>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Modal Edit Profil (Slide-out dari Kanan) -->
+    <div class="modal" id="edit-profile-modal">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Profil</h3>
+                <button aria-label="Tutup" class="modal-close-btn" style="background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="custom-settings">
+                    <div class="form-group" style="align-items: center; text-align: center;">
+                        <label for="profile-edit-photo">Foto Profil</label>
+                        <label class="profile-photo-uploader" for="profile-edit-photo" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: block; margin: 0 auto 10px;">
+                            <img alt="Preview Profile Photo" id="profile-edit-img" src="" style="width: 100%; height: 100%; object-fit: cover;" />
+                            <div class="icon-overlay"><i class="fas fa-camera"></i></div>
+                        </label>
+                        <input accept="image/*" id="profile-edit-photo" type="file" style="display: none;"/>
+                    </div>
+                    <div class="form-group"><label for="profile-edit-name">Nama Pengguna</label><input class="text-input" id="profile-edit-name" type="text" /></div>
+                    <div class="form-group"><label for="profile-edit-desc">Deskripsi Singkat</label><textarea class="text-input" id="profile-edit-desc" style="min-height: 80px;"></textarea></div>
+                    <div class="form-group">
+                        <label>Sosial Media (Hanya Username/Handle)</label>
+                        <div class="social-input-group"><i class="fab fa-tiktok"></i><input class="text-input" id="social-tiktok" placeholder="Username TikTok" type="text" /></div>
+                        <div class="social-input-group"><i class="fab fa-instagram"></i><input class="text-input" id="social-instagram" placeholder="Username Instagram" type="text" /></div>
+                        <div class="social-input-group"><i class="fab fa-youtube"></i><input class="text-input" id="social-youtube" placeholder="Handle/ID Channel YouTube" type="text" /></div>
+                        <div class="social-input-group"><i class="fab fa-facebook"></i><input class="text-input" id="social-facebook" placeholder="Username Facebook" type="text" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="app-button primary" id="save-profile-btn">Simpan Profil</button></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
+    <!-- Link file konfigurasi dan logika utama -->
+    <script src="js/config.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
