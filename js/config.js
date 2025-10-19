@@ -20,7 +20,11 @@ const config = {
 
   apiKey: gapiConfig.apiKey,
   blogId: '1753829636995064210',
-  blogIds: ['6254769183374606696', '1753829636995064210', '3323617570205840546'],
+  
+  blogIds: 
+  ['1753829636995064210', 
+    
+  ],
   
   gapi: gapiConfig,
   firebase: firebaseConfig,
