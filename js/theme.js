@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'shooting-stars', name: 'Bintang Jatuh' },
     ];
     const FONTS_LIST = [
-        { id: 'default', name: 'Default UI (Poppins)', class: 'font-default-ui' }, // Akan menggunakan Poppins
-        { id: 'default-read', name: 'Default Baca (Lora)', class: 'font-default-read' }, // Akan menggunakan Lora
+        { id: 'default', name: 'Default UI (Poppins)', class: 'font-default-ui' }, 
+        { id: 'default-read', name: 'Default Baca (Lora)', class: 'font-default-read' }, 
         { id: 'roboto', name: 'Roboto', class: 'font-roboto' },
         { id: 'inter', name: 'Inter', class: 'font-inter' },
         { id: 'merriweather', name: 'Merriweather', class: 'font-merriweather' },
