@@ -16,6 +16,12 @@ const config = {
     discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/blogger/v3/rest"],
     scope: 'https://www.googleapis.com/auth/blogger',
     clientId: '162356562012-ts06rfqmcajg8v88qop424kqq3cic4c3.apps.googleusercontent.com',
+ 
+  },
+  
+  tinyMCE: {
+  apiKey: "u8k60nirh1sgao5z4gz06e5fl8chbte27hvv0p11jy47se6v"
+
   }
 };
 

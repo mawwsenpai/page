@@ -1,7 +1,4 @@
-// File: js/main.js (Versi Final Paling Lengkap - Perbaikan Tombol Tambah Novel)
 (() => {
-    // --- 1. KONFIGURASI & INISIALISASI ---
-
     if (typeof config.gapi.scope !== 'string' || config.gapi.scope === '') {
         alert("FATAL ERROR: 'scope' di konfigurasi main.js tidak valid! Cek kembali file main.js.");
         return;
@@ -10,11 +7,7 @@
     firebase.initializeApp(config.firebase);
     const auth = firebase.auth();
     const db = firebase.database();
-
-    // --- 2. STATE APLIKASI ---
     const appState = { currentUser: null, currentBlogId: null, isGapiReady: false, allPosts: [] };
-
-    // --- 3. ELEMEN DOM ---
     const dom = {
         loader: document.getElementById('loader'),
         sidebar: document.getElementById('app-sidebar'),
@@ -39,9 +32,6 @@
         novelTitleInput: document.getElementById('novel-title-input'),
         createNovelBtn: document.getElementById('create-novel-btn'),
     };
-
-    // --- 4. FUNGSI UTAMA & ALUR KERJA ---
-
     async function initialize() {
         setupEventListeners();
         toggleLoader(true);
@@ -103,19 +93,21 @@
 
         const novelMap = new Map();
         appState.allPosts.forEach(post => post.labels?.forEach(label => {
-            if (!novelMap.has(label)) novelMap.set(label, { post: null, count: 0 }); // Inisialisasi 'post' sebagai null
+            if (!novelMap.has(label)) novelMap.set(label, { post: null, count: 0 });
         }));
         
-        // Cari gambar sampul (post pertama dengan gambar) & hitung jumlah bab
+        appState.allPosts.reverse();
+
         appState.allPosts.forEach(post => post.labels?.forEach(label => {
             if (novelMap.has(label)) {
                 const novelData = novelMap.get(label);
                 novelData.count++;
                 if (!novelData.post && post.images && post.images.length > 0) {
-                    novelData.post = post; // Set post pertama dengan gambar sebagai sampul
+                    novelData.post = post;
                 }
             }
         }));
+        appState.allPosts.reverse();
         
         dom.novelListContainer.innerHTML = '';
         const addCard = document.createElement('div');
@@ -124,10 +116,7 @@
         addCard.onclick = () => dom.addNovelModal.classList.remove('hidden');
         
         const novelCards = Array.from(novelMap.entries()).map(([label, { post, count }]) => {
-            // 1. Cek apakah ada gambar sampul
             const hasCover = post?.images?.[0]?.url;
-            
-            // 2. Siapkan class dan URL gambar berdasarkan kondisi
             const cardClass = hasCover ? '' : 'no-cover';
             const imgUrl = hasCover ?
                 post.images[0].url.replace(/\/s\d+(-c)?\//, '/w200-h300-c/') :
@@ -235,9 +224,6 @@
             toggleLoader(false);
         }
     }
-
-    // --- 5. FUNGSI AKSI & EVENT HANDLER ---
-
     async function refreshToken() {
         console.log("Memulai proses penyegaran token...");
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -309,9 +295,6 @@
             toggleLoader(false);
         }
     }
-    
-    // --- 6. FUNGSI SIDEBAR & PEMBANTU ---
-    
     function setupEventListeners() {
         dom.sidebarToggleBtn.onclick = () => dom.sidebar.classList.toggle('is-open');
         dom.closeAddNovelModal.onclick = () => {
@@ -326,11 +309,9 @@
         return;
     }
     
-    // GANTI DENGAN CARA YANG LEBIH PINTAR INI
     const isClickInsideSidebar = event.target.closest('#app-sidebar');
     const isClickOnToggleButton = event.target.closest('#sidebar-toggle-btn');
     
-    // Jika kliknya bukan di dalam sidebar DAN bukan di tombol toggle
     if (!isClickInsideSidebar && !isClickOnToggleButton) {
         dom.sidebar.classList.remove('is-open');
         
@@ -361,9 +342,9 @@
             document.getElementById('close-sidebar-btn').onclick = () => dom.sidebar.classList.remove('is-open');
             document.getElementById('nav-beranda').onclick = (e) => { e.preventDefault(); renderDashboard(); dom.sidebar.classList.remove('is-open'); };
             document.getElementById('nav-analisis').onclick = (e) => { e.preventDefault(); renderAnalysisView(); dom.sidebar.classList.remove('is-open'); };
-            document.getElementById('switch-blog-btn').onclick = () => { // Hapus async dari sini
-    // INI DIA JURUS PAMUNGKASNYA
-    setTimeout(async () => { // Pindahkan async ke sini
+            document.getElementById('switch-blog-btn').onclick = () => { 
+                
+    setTimeout(async () => { 
         renderSidebar('blog-selection');
         const listEl = document.getElementById('sidebar-blog-list');
         try {
@@ -380,7 +361,7 @@
         } catch (e) {
             listEl.innerHTML = '<li>Gagal memuat.</li>';
         }
-    }, 0); // Jeda 0 milidetik
+    }, 0);
 };
         } else if (state === 'blog-selection') {
             document.getElementById('back-to-menu-btn').onclick = () => renderSidebar('main');
@@ -408,7 +389,6 @@
         toggleLoader(false);
     }
     
-    // --- 8. JALANKAN APLIKASI ---
     initialize();
 
 })();

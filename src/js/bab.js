@@ -1,10 +1,7 @@
 (() => {
-    
     firebase.initializeApp(config.firebase);
     const auth = firebase.auth();
     const db = firebase.database();
-    
-    // --- DOM ELEMENTS (Sudah disesuaikan dengan HTML baru) ---
     const dom = {
         loader: document.getElementById('loader'),
         headerBackground: document.getElementById('header-background'),
@@ -14,14 +11,11 @@
         listContainer: document.getElementById('chapter-list-content'),
     };
     
-    // --- STATE ---
     const pageState = {
         blogId: null,
         label: null,
         isGapiReady: false,
     };
-    
-    // --- MAIN FUNCTIONS ---
     async function initialize() {
         toggleLoader(true);
         
@@ -66,7 +60,7 @@
                 fetchBodies: true,
                 maxResults: 500,
                 status: ['live', 'draft'],
-                fetchImages: true, // PENTING: Ditambahkan agar bisa ambil gambar
+                fetchImages: true, 
             }));
             
             const posts = response.result.items || [];
@@ -90,26 +84,19 @@
             console.error("Gagal memuat bab:", error);
             dom.listContainer.innerHTML = '<p style="padding: 1rem; color: #e53e3e; text-align: center;">Gagal memuat bab.</p>';
         } finally {
-            // Ini adalah inti dari kodemu yang berhasil!
             toggleLoader(false);
         }
     }
     function createChapterItemElement(post) {
-    // Menghitung data seperti biasa
     const wordCount = post.content ? post.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length : 0;
     const publishDate = new Date(post.published).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    
-    // Tentukan Status dan Label untuk Badge
     const isDraft = post.status.toLowerCase() === 'draft';
     const statusClass = isDraft ? 'draft' : 'live';
     const statusLabel = isDraft ? 'Draft' : 'Live';
     
-    // Elemen utama
     const a = document.createElement('a');
     a.className = 'chapter-item';
     a.href = `editor.html?blogId=${pageState.blogId}&postId=${post.id}&label=${pageState.label}`;
-    
-    // *** MARKUP BARU (sesuai CSS Grid & Status Badge) ***
     a.innerHTML = `
         <div class="chapter-item-header">
             <div class="chapter-item-title">${post.title}</div>
@@ -122,7 +109,6 @@
             <div class="meta-item date"><span>${publishDate}</span></div>
         </div>
     `;
-    // *** AKHIR MARKUP BARU ***
     
     return a;
 }
@@ -132,15 +118,12 @@
         pageState.isGapiReady = true;
     }
     const getUserTokenFromDb = (uid) => db.ref(`users/${uid}/bloggerAccessToken`).once('value').then(snap => snap.val());
-    // INTI KUNCI DARI KODEMU YANG STABIL:
     const callBloggerApi = (apiCall) => apiCall();
     const toggleLoader = (show) => dom.loader.classList.toggle('hidden', !show);
     const showErrorState = (message) => {
         document.body.innerHTML = `<div style="color:red;padding:20px;text-align:center;font-family: var(--font-ui);">${message}</div>`;
         toggleLoader(false);
     }
-    
-    // DITAMBAHKAN KEMBALI: Listener untuk efek header menyusut
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             document.body.classList.add('is-scrolled');
@@ -149,7 +132,6 @@
         }
     });
     
-    // --- RUN APP ---
     initialize();
     
 })();
