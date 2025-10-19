@@ -10,10 +10,11 @@ const firebaseConfig = {
 };
 
 const gapiConfig = {
-  apiKey: firebaseConfig.apiKey, // Menggunakan API Key yang sama untuk GAPI (Penting!)
+  apiKey: firebaseConfig.apiKey, 
+  
   clientId: '162356562012-ts06rfqmcajg8v88qop424kqq3cic4c3.apps.googleusercontent.com',
   discoveryDocs: ["https://blogger.googleapis.com/$discovery/rest?version=v3"],
-  scope: "https://www.googleapis.com/auth/blogger", // Izin penuh untuk write/read
+  scope: "https://www.googleapis.com/auth/blogger", 
 };
 
 const config = {
