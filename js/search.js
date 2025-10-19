@@ -80,60 +80,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNGSI PENCARIAN & LOGIKA ---
 
     async function performSearch(query) {
-        const encodedQuery = encodeURIComponent(query);
-        const maxResultsPerBlog = 50; 
-        const labelMap = new Map();
-
-        if (currentFetchAbortController) {
-            currentFetchAbortController.abort();
-        }
-        currentFetchAbortController = new AbortController();
-        const signal = currentFetchAbortController.signal;
-
-        showInPageLoading();
-        
-        const fetchPromises = config.blogIds.map(blogId => {
-            const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts?key=${config.apiKey}&q=${encodedQuery}&fetchImages=true&maxResults=${maxResultsPerBlog}&orderBy=published`;
-            
-            return fetch(apiUrl, { signal })
-                .then(response => {
-                    if (!response.ok) return { items: [] };
-                    return response.json();
-                })
-                .catch(error => {
-                    if (error.name === 'AbortError') return null;
-                    return { items: [] };
-                });
-        });
-
-        const allResultsArrays = await Promise.all(fetchPromises);
-        hideInPageLoading();
-        
-        const lowerQuery = query.toLowerCase();
-        let combinedMatches = allResultsArrays
-            .filter(data => data && data.items) 
-            .flatMap(data => data.items || []);
-
-        const finalMatchingPosts = combinedMatches.filter(post => {
-            const titleMatch = post.title.toLowerCase().includes(lowerQuery);
-            const labelMatch = post.labels && post.labels.some(label =>
-                label.toLowerCase().includes(lowerQuery)
-            );
-            return titleMatch || labelMatch;
-        });
-        
-        finalMatchingPosts.forEach(post => {
-            if (post.labels) {
-                post.labels.forEach(label => {
-                    if (!labelMap.has(label)) {
-                        labelMap.set(label, post); 
-                    }
-                });
-            }
-        });
-
-        return Array.from(labelMap.entries());
+    const encodedQuery = encodeURIComponent(query);
+    const maxResultsPerBlog = 50;
+    const labelMap = new Map(); 
+    
+    if (currentFetchAbortController) {
+        currentFetchAbortController.abort();
     }
+    currentFetchAbortController = new AbortController();
+    const signal = currentFetchAbortController.signal;
+    
+    showInPageLoading();
+    const fetchPromises = config.blogIds.map(blogId => {
+        const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts?key=${config.apiKey}&q=${encodedQuery}&fetchImages=true&maxResults=${maxResultsPerBlog}&orderBy=published`;
+        return fetch(apiUrl, { signal })
+            .then(response => response.ok ? response.json() : { items: [] })
+            .catch(error => {
+                if (error.name === 'AbortError') return null;
+                return { items: [] };
+            });
+    });
+    
+    const allResultsArrays = await Promise.all(fetchPromises);
+    hideInPageLoading();
+    
+    const lowerQuery = query.toLowerCase();
+    let combinedMatches = allResultsArrays
+        .filter(data => data && data.items)
+        .flatMap(data => data.items || []);
+    
+    const finalMatchingPosts = combinedMatches.filter(post => {
+        const titleMatch = post.title.toLowerCase().includes(lowerQuery);
+        const labelMatch = post.labels && post.labels.some(label =>
+            label.toLowerCase().includes(lowerQuery)
+        );
+        return titleMatch || labelMatch;
+    });
+    
+    // 👇 PERUBAHANNYA CUMA DI BAGIAN INI 👇
+    finalMatchingPosts.forEach(post => {
+        if (post.labels) {
+            post.labels.forEach(label => {
+
+                labelMap.set(label, post);
+            });
+        }
+    });
+    
+    return Array.from(labelMap.entries());
+}
 
     // --- EVENT LISTENERS & INISIALISASI ---
 

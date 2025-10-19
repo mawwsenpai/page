@@ -1,8 +1,3 @@
-// =========================================================================
-// main.js - Script untuk Halaman Utama (Home)
-// =========================================================================
-
-// Variabel Global untuk menyimpan data Home (Top 500 posts per blog)
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -131,42 +126,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function renderCategoryList() {
-        const container = document.getElementById('category-list-container');
-        if (!container) return;
-        
-        // Tampilkan placeholder di awal
-        if (allCombinedPosts.length === 0) {
-            container.innerHTML = createCategoryListPlaceholder(8);
-            return;
-        }
-        
-        const posts = allCombinedPosts;
-        
-        const labelMap = new Map();
-        
-        // Iterasi dan ambil postingan paling baru sebagai cover kategori
-        posts.forEach(post => {
-            if (post.labels) {
-                post.labels.forEach(label => {
-                    if (!labelMap.has(label)) {
-                        labelMap.set(label, post);
-                    }
-                });
-            }
-        });
-        
-        const categories = Array.from(labelMap.entries());
-        
-        if (categories.length === 0) {
-            container.innerHTML = `<p>Tidak ada kategori ditemukan.</p>`;
-            return;
-        }
-        
-        // Tampilkan hanya 8 kategori teratas (atau sesuai kebutuhan)
-        const topCategories = categories.slice(0, 8);
-        
-        container.innerHTML = topCategories.map(([label, post]) => createCategoryCard(post, label)).join('');
+    const container = document.getElementById('category-list-container');
+    if (!container) return;
+    
+    if (allCombinedPosts.length === 0) {
+        container.innerHTML = createCategoryListPlaceholder(8);
+        return;
     }
+    
+    const posts = allCombinedPosts;
+    const labelMap = new Map();
+    
+    // Iterasi untuk mencari postingan paling LAMA untuk setiap label
+    posts.forEach(post => {
+        if (post.labels) {
+            post.labels.forEach(label => {
+                // 👇 PERUBAHANNYA CUMA DI SINI 👇
+                // Hapus `if`, biarkan dia menimpa terus menerus.
+                // Data terakhir yang masuk adalah dari post terlama.
+                labelMap.set(label, post);
+            });
+        }
+    });
+    
+    const categories = Array.from(labelMap.entries());
+    
+    if (categories.length === 0) {
+        container.innerHTML = `<p>Tidak ada kategori ditemukan.</p>`;
+        return;
+    }
+    
+    // Tampilkan hanya 8 kategori teratas (atau sesuai kebutuhan)
+    const topCategories = categories.slice(0, 8);
+    
+    container.innerHTML = topCategories.map(([label, post]) => createCategoryCard(post, label)).join('');
+}
     
     /* --- INISIALISASI --- */
     

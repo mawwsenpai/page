@@ -1,6 +1,4 @@
-/* ============================================= */
-/* 1. GLOBAL & BASE STYLES */
-/* ============================================= */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -19,9 +17,6 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* ============================================= */
-/* 2. LOADER OVERLAY */
-/* ============================================= */
 .loader-overlay {
     position: fixed;
     inset: 0;
@@ -62,9 +57,11 @@ body {
     }
 }
 
+
 /* ============================================= */
 /* 3. MAIN HEADER (INITIAL STATE) */
 /* ============================================= */
+
 .main-app-header {
     position: fixed;
     top: 0;
@@ -106,6 +103,7 @@ body {
 
 .header-title-group {
     transition: transform 0.4s ease;
+    min-width: 0;
 }
 
 #chapter-title {
@@ -152,9 +150,11 @@ body {
     color: var(--accent-text);
 }
 
+
 /* ============================================= */
 /* 4. HEADER ON SCROLL */
 /* ============================================= */
+
 body.is-scrolled .main-app-header {
     height: 70px;
     min-height: 70px;
@@ -176,7 +176,6 @@ body.is-scrolled .header-content {
 body.is-scrolled .header-title-group {
     flex-grow: 1;
     text-align: left;
-    min-width: 0;
 }
 
 body.is-scrolled #chapter-title {
@@ -195,9 +194,11 @@ body.is-scrolled .add-chapter-button {
     margin-left: auto;
 }
 
+
 /* ============================================= */
 /* 5. MAIN CONTENT AREA */
 /* ============================================= */
+
 .app-main-content {
     padding-top: 40vh;
     min-height: 250px;
@@ -210,13 +211,17 @@ body.is-scrolled .add-chapter-button {
     padding: var(--padding-md);
 }
 
+
 /* ============================================= */
-/* 6. CHAPTER LIST (REFINED) */
+/* 6. CHAPTER LIST (STABLE) */
 /* ============================================= */
+
 .chapter-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
     background-color: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     border-radius: 12px;
@@ -234,19 +239,21 @@ body.is-scrolled .add-chapter-button {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.chapter-item-content {
+.chapter-item-header {
     flex-grow: 1;
-    min-width: 0; /* Kunci agar ellipsis berfungsi di dalam flexbox */
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 200px;
 }
 
 .chapter-item-title {
     font-family: var(--font-reading);
     font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 0.35rem;
-    white-space: nowrap;      /* Paksa jadi satu baris */
-    overflow: hidden;         /* Sembunyikan yang lebih */
-    text-overflow: ellipsis;  /* Tampilkan "..." */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chapter-stats {
@@ -255,6 +262,8 @@ body.is-scrolled .add-chapter-button {
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.8rem;
+    flex-shrink: 0;
+    flex-wrap: wrap; /* Izinkan statistik turun baris jika perlu */
 }
 
 .meta-item {
@@ -266,10 +275,9 @@ body.is-scrolled .add-chapter-button {
 }
 
 .meta-item::before {
-    font-family: "Font Awesome 6 Free"; /* Pastikan Font Awesome sudah di-load */
+    font-family: "Font Awesome 6 Free";
     font-weight: 900;
 }
-
 .meta-item.views::before { content: "\f06e"; }
 .meta-item.words::before { content: "\f15c"; }
 .meta-item.date::before { content: "\f073"; }
@@ -279,9 +287,6 @@ body.is-scrolled .add-chapter-button {
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
-    flex-shrink: 0;
-    height: fit-content;
-    margin-left: 0.5rem;
 }
 
 .status-badge.live {
@@ -298,11 +303,9 @@ body.is-scrolled .add-chapter-button {
     background: none;
     border: none;
     padding: 0.25rem;
-    margin: 0;
     cursor: pointer;
     color: var(--text-secondary);
     transition: color 0.2s ease, transform 0.2s ease;
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -315,8 +318,9 @@ body.is-scrolled .add-chapter-button {
 
 
 /* ============================================= */
-/* 7. RESPONSIVE DESIGN */
+/* 7. RESPONSIVE DESIGN (FIXED) */
 /* ============================================= */
+
 @media (max-width: 768px) {
     .main-app-header {
         height: 30vh;
@@ -339,34 +343,13 @@ body.is-scrolled .add-chapter-button {
     .chapter-list-container {
         padding: var(--padding-sm);
     }
-
+    
     .chapter-item {
-        flex-wrap: wrap; /* Izinkan item turun baris jika perlu */
         padding: 0.8rem 1rem;
-    }
-
-    .chapter-item-content {
-        width: 100%; /* Ambil lebar penuh di baris pertama */
-        margin-bottom: 0.5rem; /* Jarak jika stats turun baris */
     }
     
     .chapter-stats {
-        width: 100%;
+        /* Atur agar statistik lebih rapi di mobile */
+        gap: 0.5rem 1rem;
     }
-
-    /* Pindahkan badge dan tombol salin ke kanan atas */
-    .status-badge {
-        order: 2; /* Pindah ke urutan setelah konten */
-        margin-left: auto; /* Dorong ke kanan */
-    }
-    
-    .copy-link-btn {
-        order: 3;
-    }
-    
-    .chapter-item-content {
-        order: 1;
-        width: calc(100% - 80px); /* Beri ruang untuk badge & tombol */
-    }
-
 }

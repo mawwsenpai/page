@@ -87,8 +87,7 @@
             toggleLoader(false);
         }
     }
-    f// 1. MODIFIKASI FUNGSI INI
-function createChapterItemElement(post) {
+    function createChapterItemElement(post) {
     const wordCount = post.content ? post.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length : 0;
     const publishDate = new Date(post.published).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     const isDraft = post.status.toLowerCase() === 'draft';
