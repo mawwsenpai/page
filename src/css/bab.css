@@ -1,6 +1,6 @@
-/* =================================================================== */
-/* [ 1. GLOBAL & BASE STYLES ]
-/* =================================================================== */
+/* ============================================= */
+/* 1. GLOBAL & BASE STYLES */
+/* ============================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -19,9 +19,9 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* =================================================================== */
-/* [ 2. LOADER OVERLAY ]
-/* =================================================================== */
+/* ============================================= */
+/* 2. LOADER OVERLAY */
+/* ============================================= */
 .loader-overlay {
     position: fixed;
     inset: 0;
@@ -62,9 +62,9 @@ body {
     }
 }
 
-/* =================================================================== */
-/* [ 3. HEADER UTAMA (TAMPILAN AWAL) ]
-/* =================================================================== */
+/* ============================================= */
+/* 3. MAIN HEADER (INITIAL STATE) */
+/* ============================================= */
 .main-app-header {
     position: fixed;
     top: 0;
@@ -95,7 +95,7 @@ body {
 .header-content {
     position: relative;
     display: flex;
-    align-items: flex-end; /* Awalnya di bawah */
+    align-items: flex-end;
     justify-content: space-between;
     height: 100%;
     max-width: 1200px;
@@ -104,7 +104,6 @@ body {
     transition: padding-bottom 0.4s ease, align-items 0.4s ease;
 }
 
-/* --- Judul & Info Awal --- */
 .header-title-group {
     transition: transform 0.4s ease;
 }
@@ -123,7 +122,6 @@ body {
     transition: opacity 0.4s ease;
 }
 
-/* --- Tombol Aksi --- */
 .back-button,
 .add-chapter-button {
     display: flex;
@@ -154,12 +152,9 @@ body {
     color: var(--accent-text);
 }
 
-/* =================================================================== */
-/* [ 4. EFEK HEADER SAAT SCROLL ]
-/* (JavaScript menambah class 'is-scrolled' ke body)
-/* =================================================================== */
-
-/* --- Wadah Header Mengecil --- */
+/* ============================================= */
+/* 4. HEADER ON SCROLL */
+/* ============================================= */
 body.is-scrolled .main-app-header {
     height: 70px;
     min-height: 70px;
@@ -172,276 +167,52 @@ body.is-scrolled .header-background {
     opacity: 0;
 }
 
-/* --- Konten Header Jadi Sejajar --- */
 body.is-scrolled .header-content {
-    align-items: center; /* Bikin semua item nengah vertikal */
+    align-items: center;
     padding-bottom: 0;
-    gap: 1rem; /* Jarak antara tombol back dan judul */
+    gap: 1rem;
 }
 
-/* --- Grup Judul Rata Kiri --- */
 body.is-scrolled .header-title-group {
-    flex-grow: 1; /* Ambil sisa space */
-    text-align: left; /* Teksnya rata kiri */
+    flex-grow: 1;
+    text-align: left;
+    min-width: 0;
 }
 
-/* --- Teks Judul Mengecil --- */
 body.is-scrolled #chapter-title {
     font-size: 1.5rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 0; /* Hapus margin auto biar bisa rata kiri */
-}
-
-/* --- Info Bab Hilang Total --- */
-body.is-scrolled #chapter-info {
-    display: none;
-}
-
-/* --- Tombol Tambah Tetap di Kanan --- */
-body.is-scrolled .add-chapter-button {
-    margin-left: auto; /* Dorong tombol ini ke paling kanan */
-}
-
-/* =================================================================== */
-/* [ 5. AREA KONTEN UTAMA ]
-/* =================================================================== */
-.app-main-content {
-    padding-top: 40vh; /* Sesuaikan dengan tinggi header awal */
-    min-height: 250px;
-    transition: padding-top 0.4s var(--transition-smooth);
-}
-
-/* =================================================================== */
-/* [ 6. DAFTAR BAB (CHAPTER LIST) ]
-/* =================================================================== */
-/* =================================================================== */
-/* [ 1. GLOBAL & BASE STYLES ]
-/* =================================================================== */
-* {
-    box-sizing: border-box;
     margin: 0;
-    padding: 0;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: var(--font-ui);
-    line-height: 1.6;
-    transition: background-color 0.3s ease;
-}
-
-/* =================================================================== */
-/* [ 2. LOADER OVERLAY ]
-/* =================================================================== */
-.loader-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(var(--bg-primary-rgb), 0.9);
-    backdrop-filter: blur(var(--glass-blur));
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: var(--z-loading);
-    opacity: 1;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-
-.loader-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.loader-overlay p {
-    margin-top: 1rem;
-    font-size: 1rem;
-    color: var(--text-secondary);
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid var(--border-color);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* =================================================================== */
-/* [ 3. HEADER UTAMA (TAMPILAN AWAL) ]
-/* =================================================================== */
-.main-app-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 40vh;
-    min-height: 250px;
-    z-index: 100;
-    transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.4s ease, backdrop-filter 0.4s ease;
-}
-
-.header-background {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    opacity: 1;
-    transition: opacity 0.4s ease;
-}
-
-.header-background::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, var(--bg-primary) 0%, rgba(var(--bg-primary-rgb), 0.4) 50%, rgba(var(--bg-primary-rgb), 0.0) 100%);
-}
-
-.header-content {
-    position: relative;
-    display: flex;
-    align-items: flex-end; /* Awalnya di bawah */
-    justify-content: space-between;
-    height: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--padding-md) var(--padding-md);
-    transition: padding-bottom 0.4s ease, align-items 0.4s ease;
-}
-
-/* --- Judul & Info Awal --- */
-.header-title-group {
-    transition: transform 0.4s ease;
-}
-
-#chapter-title {
-    font-family: var(--font-reading);
-    font-size: 2.8rem;
-    font-weight: 700;
-    line-height: 1.2;
-    transition: font-size 0.4s ease;
-}
-
-#chapter-info {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    transition: opacity 0.4s ease;
-}
-
-/* --- Tombol Aksi --- */
-.back-button,
-.add-chapter-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 38px;
-    height: 38px;
-    font-size: 1rem;
-    background-color: rgba(var(--bg-secondary-rgb), 0.7);
-    color: var(--text-primary);
-    border-radius: 50%;
-    text-decoration: none;
-    border: 1px solid rgba(var(--border-color-rgb), 0.5);
-    transition: var(--transition-smooth);
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.back-button:hover,
-.add-chapter-button:hover {
-    background-color: var(--interactive-hover-bg);
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(var(--accent-color-rgb), 0.3);
-}
-
-.add-chapter-button {
-    background-color: var(--accent-color);
-    color: var(--accent-text);
-}
-
-/* =================================================================== */
-/* [ 4. EFEK HEADER SAAT SCROLL ]
-/* (JavaScript menambah class 'is-scrolled' ke body)
-/* =================================================================== */
-
-/* --- Wadah Header Mengecil --- */
-body.is-scrolled .main-app-header {
-    height: 70px;
-    min-height: 70px;
-    background-color: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    border-bottom: var(--border-style);
-}
-
-body.is-scrolled .header-background {
-    opacity: 0;
-}
-
-/* --- Konten Header Jadi Sejajar --- */
-body.is-scrolled .header-content {
-    align-items: center; /* Bikin semua item nengah vertikal */
-    padding-bottom: 0;
-    gap: 1rem; /* Jarak antara tombol back dan judul */
-}
-
-/* --- Grup Judul Rata Kiri --- */
-body.is-scrolled .header-title-group {
-    flex-grow: 1; /* Ambil sisa space */
-    text-align: left; /* Teksnya rata kiri */
-}
-
-/* --- Teks Judul Mengecil --- */
-body.is-scrolled #chapter-title {
-    font-size: 1.5rem important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0; /* Hapus margin auto biar bisa rata kiri */
-}
-
-/* --- Info Bab Hilang Total --- */
 body.is-scrolled #chapter-info {
     display: none;
 }
 
-/* --- Tombol Tambah Tetap di Kanan --- */
 body.is-scrolled .add-chapter-button {
-    margin-left: auto; /* Dorong tombol ini ke paling kanan */
+    margin-left: auto;
 }
 
-/* =================================================================== */
-/* [ 5. AREA KONTEN UTAMA ]
-/* =================================================================== */
+/* ============================================= */
+/* 5. MAIN CONTENT AREA */
+/* ============================================= */
 .app-main-content {
-    padding-top: 40vh; /* Sesuaikan dengan tinggi header awal */
+    padding-top: 40vh;
     min-height: 250px;
     transition: padding-top 0.4s var(--transition-smooth);
 }
-/* =================================================================== */
-/* [ 6. DAFTAR BAB (CHAPTER LIST) - VERSI FINAL LEBIH RAPI ]
-/* =================================================================== */
 
-/* --- Wadah utama daftar bab --- */
 .chapter-list-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: var(--padding-md);
 }
 
-/* --- Style Tiap Item Bab (Kartu Kaca Mini) --- */
+/* ============================================= */
+/* 6. CHAPTER LIST (REFINED) */
+/* ============================================= */
 .chapter-item {
     display: flex;
     align-items: center;
@@ -449,51 +220,41 @@ body.is-scrolled .add-chapter-button {
     background-color: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     border-radius: 12px;
-    padding: 0.8rem 1rem;
+    padding: 1rem 1.25rem;
     margin-bottom: 0.75rem;
     text-decoration: none;
     color: var(--text-primary);
     border: 1px solid rgba(var(--border-color-rgb), 0.2);
-    box-shadow: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .chapter-item:hover {
-    transform: translateY(-3px) scale(1.01);
+    transform: translateY(-3px);
     border-color: rgba(var(--accent-color-rgb), 0.5);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* --- Layout Konten di dalam kartu --- */
-.chapter-item-header {
+.chapter-item-content {
     flex-grow: 1;
-    padding: 0;
-    margin: 0;
-    /* INI KUNCI BIAR ELLIPSIS (...) DI JUDUL BERFUNGSI */
-    min-width: 0; 
+    min-width: 0; /* Kunci agar ellipsis berfungsi di dalam flexbox */
 }
 
-/* --- Judul Bab (Anti Turun & Rapi) --- */
 .chapter-item-title {
     font-family: var(--font-reading);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 0.25rem; /* Kasih jarak ke statistik */
-    
-    /* === INI SOLUSI BIAR JUDUL GAK TURUN BARIS === */
-    white-space: nowrap;      /* 1. Paksa jadi satu baris */
-    overflow: hidden;         /* 2. Sembunyikan yang meluber */
-    text-overflow: ellipsis;  /* 3. Tampilkan "..." di akhir */
+    margin-bottom: 0.35rem;
+    white-space: nowrap;      /* Paksa jadi satu baris */
+    overflow: hidden;         /* Sembunyikan yang lebih */
+    text-overflow: ellipsis;  /* Tampilkan "..." */
 }
 
-/* --- Statistik (Dibuat Rapi Sebaris & Gak Berantakan) --- */
 .chapter-stats {
     display: flex;
-    /* flex-wrap: wrap; <-- HAPUS INI BIAR GAK TURUN BARIS */
+    align-items: center;
     gap: 1rem;
-    border: none;
     color: var(--text-secondary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
 }
 
 .meta-item {
@@ -501,28 +262,26 @@ body.is-scrolled .add-chapter-button {
     align-items: center;
     gap: 0.4rem;
     font-weight: 500;
-    flex-shrink: 0; /* Biar ikon & teks statistik gak menciut */
+    white-space: nowrap;
 }
 
 .meta-item::before {
-    font-family: "Font Awesome 6 Free";
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-family: "Font Awesome 6 Free"; /* Pastikan Font Awesome sudah di-load */
     font-weight: 900;
 }
+
 .meta-item.views::before { content: "\f06e"; }
 .meta-item.words::before { content: "\f15c"; }
 .meta-item.date::before { content: "\f073"; }
 
-/* --- Badge Status (Tetap di kanan) --- */
 .status-badge {
     padding: 0.25rem 0.6rem;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
-    margin-left: auto;
     flex-shrink: 0;
     height: fit-content;
+    margin-left: 0.5rem;
 }
 
 .status-badge.live {
@@ -534,59 +293,31 @@ body.is-scrolled .add-chapter-button {
     background-color: rgba(246, 173, 85, 0.2);
     color: #f6ad55;
 }
-/* =================================================================== */
-/* [ 7. RESPONSIVE DESIGN (Tampilan Mobile) ]
-/* =================================================================== */
-@media (max-width: 768px) {
-    /* --- Header & Konten --- */
-    .main-app-header {
-        height: 30vh;
-        min-height: 180px;
-    }
 
-    .app-main-content {
-        padding-top: 30vh;
-        min-height: 180px;
-    }
-
-    #chapter-title {
-        font-size: 2rem;
-    }
-
-    body.is-scrolled #chapter-title {
-        font-size: 1.1rem; /* Ukuran judul di mobile saat scroll */
-    }
-    
-    /* --- Daftar Bab di Mobile --- */
-    .chapter-list-container {
-        padding: var(--padding-sm);
-    }
-
-    .chapter-item {
-        padding: var(--padding-sm);
-        margin-bottom: 1rem;
-    }
-    
-    .chapter-item-header {
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .chapter-item-title {
-        font-size: 1.1rem;
-    }
-    
-    .chapter-stats {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem 0.5rem;
-        padding-top: 0.5rem;
-    }
+.copy-link-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    margin: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-/* =================================================================== */
-/* [ 7. RESPONSIVE DESIGN (Tampilan Mobile) ]
-/* =================================================================== */
+
+.copy-link-btn:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+
+/* ============================================= */
+/* 7. RESPONSIVE DESIGN */
+/* ============================================= */
 @media (max-width: 768px) {
-    /* --- Header & Konten --- */
     .main-app-header {
         height: 30vh;
         min-height: 180px;
@@ -602,31 +333,40 @@ body.is-scrolled .add-chapter-button {
     }
 
     body.is-scrolled #chapter-title {
-        font-size: 1.1rem; /* Ukuran judul di mobile saat scroll */
+        font-size: 1.2rem !important;
     }
     
-    /* --- Daftar Bab di Mobile --- */
     .chapter-list-container {
         padding: var(--padding-sm);
     }
 
     .chapter-item {
-        padding: var(--padding-sm);
-        margin-bottom: 1rem;
-    }
-    
-    .chapter-item-header {
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.5rem;
+        flex-wrap: wrap; /* Izinkan item turun baris jika perlu */
+        padding: 0.8rem 1rem;
     }
 
-    .chapter-item-title {
-        font-size: 1.1rem;
+    .chapter-item-content {
+        width: 100%; /* Ambil lebar penuh di baris pertama */
+        margin-bottom: 0.5rem; /* Jarak jika stats turun baris */
     }
     
     .chapter-stats {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem 0.5rem;
-        padding-top: 0.5rem;
+        width: 100%;
     }
+
+    /* Pindahkan badge dan tombol salin ke kanan atas */
+    .status-badge {
+        order: 2; /* Pindah ke urutan setelah konten */
+        margin-left: auto; /* Dorong ke kanan */
+    }
+    
+    .copy-link-btn {
+        order: 3;
+    }
+    
+    .chapter-item-content {
+        order: 1;
+        width: calc(100% - 80px); /* Beri ruang untuk badge & tombol */
+    }
+
 }

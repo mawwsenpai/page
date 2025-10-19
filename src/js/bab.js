@@ -87,7 +87,8 @@
             toggleLoader(false);
         }
     }
-    function createChapterItemElement(post) {
+    f// 1. MODIFIKASI FUNGSI INI
+function createChapterItemElement(post) {
     const wordCount = post.content ? post.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length : 0;
     const publishDate = new Date(post.published).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     const isDraft = post.status.toLowerCase() === 'draft';
@@ -97,6 +98,7 @@
     const a = document.createElement('a');
     a.className = 'chapter-item';
     a.href = `editor.html?blogId=${pageState.blogId}&postId=${post.id}&label=${pageState.label}`;
+    
     a.innerHTML = `
         <div class="chapter-item-header">
             <div class="chapter-item-title">${post.title}</div>
@@ -107,11 +109,45 @@
             <div class="meta-item views"><span>${post.pageviews || '0'}</span></div>
             <div class="meta-item words"><span>${wordCount}</span></div>
             <div class="meta-item date"><span>${publishDate}</span></div>
+            
+            <button class="copy-link-btn" data-post-id="${post.id}" title="Salin link publik">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M13.193 10.807a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414-1.414l-3-3zm-1.414-1.414a1 1 0 0 0 1.414-1.414l-3-3a1 1 0 0 0-1.414 1.414l3 3zm-.707 6.364a1 1 0 0 0 1.414 0l1.5-1.5a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 5.656 5.656l1.5-1.5zm-5.656-5.656a3.987 3.987 0 0 0-1.118 2.757A4.002 4.002 0 0 0 9.879 20a4 4 0 0 0 3.5-1.678l-3.001-3a2.002 2.002 0 0 1-2.827-2.828l3-3a2 2 0 0 1 2.828 0l-1.06 1.061a1 1 0 1 0 1.414 1.414l1.06-1.061a4 4 0 0 0-3.5-1.678 4 4 0 0 0-3.5 1.678l-3-3A4 4 0 0 0 2.121 12a4 4 0 0 0 1.118 2.757l3.001 3z"/></svg>
+            </button>
         </div>
     `;
     
     return a;
 }
+
+dom.listContainer.addEventListener('click', async (event) => {
+    const copyBtn = event.target.closest('.copy-link-btn');
+    
+    if (!copyBtn) {
+        return;
+    }
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const postId = copyBtn.dataset.postId;
+    const urlToCopy = `../post.html?id=${postId}`;
+    
+    try {
+        await navigator.clipboard.writeText(new URL(urlToCopy, window.location.href).href);
+        
+        copyBtn.innerHTML = 'Disalin!';
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M13.193 10.807a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414-1.414l-3-3zm-1.414-1.414a1 1 0 0 0 1.414-1.414l-3-3a1 1 0 0 0-1.414 1.414l3 3zm-.707 6.364a1 1 0 0 0 1.414 0l1.5-1.5a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 5.656 5.656l1.5-1.5zm-5.656-5.656a3.987 3.987 0 0 0-1.118 2.757A4.002 4.002 0 0 0 9.879 20a4 4 0 0 0 3.5-1.678l-3.001-3a2.002 2.002 0 0 1-2.827-2.828l3-3a2 2 0 0 1 2.828 0l-1.06 1.061a1 1 0 1 0 1.414 1.414l1.06-1.061a4 4 0 0 0-3.5-1.678 4 4 0 0 0-3.5 1.678l-3-3A4 4 0 0 0 2.121 12a4 4 0 0 0 1.118 2.757l3.001 3z"/></svg>
+            `;
+        }, 2000);
+        
+    } catch (err) {
+        console.error('Gagal menyalin link:', err);
+        alert('Gagal menyalin link.');
+    }
+});
     async function loadGapiClient() {
         await new Promise(resolve => gapi.load('client', resolve));
         await gapi.client.init({ apiKey: config.gapi.apiKey, discoveryDocs: config.gapi.discoveryDocs });
