@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fontClass) {
             htmlElement.classList.add(fontClass);
         }
-        
-        // C. Terapkan Ukuran Font Sistem (pada <html> menggunakan variabel CSS)
         document.documentElement.style.setProperty('--system-font-scale', fontSize);
         if (fontSizeValueSpan) {
             fontSizeValueSpan.textContent = `${parseFloat(fontSize).toFixed(2)}x`;

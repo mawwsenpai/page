@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFetchAbortController = null;
     let allCombinedPosts = [];
     
-    // Cache untuk menyimpan detail nama blog (untuk performa)
     const blogDetailsCache = new Map();
 
     // --- FUNGSI UTILITY BARU: Load Blog Details ---
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.innerHTML = `
             <div class="in-page-loading">
                 <div class="spinner-small"></div>
-                <p>Mencari novel dari semua blog...</p>
+                <p>Mencari novel..</p>
             </div>
         `;
         searchInput.disabled = true;
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createNovelCard(post, label) {
-        // Mengambil nama blog dari cache
         const blogName = blogDetailsCache.get(post.blog.id) || "Blog Tidak Diketahui";
         
         const publishedDate = new Date(post.published).toLocaleDateString('id-ID', {
@@ -117,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return titleMatch || labelMatch;
     });
     
-    // 👇 PERUBAHANNYA CUMA DI BAGIAN INI 👇
     finalMatchingPosts.forEach(post => {
         if (post.labels) {
             post.labels.forEach(label => {
@@ -133,12 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS & INISIALISASI ---
 
     async function initializeSearchPage() {
-        // 1. Fetch dan cache semua detail nama blog sekali di awal
         searchInput.disabled = true;
-        resultsContainer.innerHTML = '<p class="info-text">Memuat detail blog untuk pencarian...</p>';
+        resultsContainer.innerHTML = '<p class="info-text">Memuat detail novel untuk pencarian...</p>';
         await loadBlogDetails(); 
-        
-        // 2. Siapkan UI dan input
         searchInput.disabled = false;
         searchInput.focus();
         resultsContainer.innerHTML = `<p class="info-text">Masukkan minimal ${MIN_CHARS} karakter untuk memulai pencarian.</p>`;

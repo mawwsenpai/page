@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /* --- FUNGSI PENGAMBILAN & PENGGABUNGAN DATA (BARU) --- */
     
-    // Muat & Gabungkan data dari semua blog (Max 500 post per blog untuk Home)
     async function loadAndCombineAllDataForHome() {
         console.log(`Memuat data dari ${config.blogIds.length} blog...`);
         
@@ -82,14 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             const allPostsArrays = await Promise.all(fetchPromises);
-            
-            // Gabungkan SEMUA postingan dan filter yang null
             let combinedPosts = allPostsArrays.flatMap(data => data.items || []);
             
-            // Urutkan keseluruhan data gabungan (Terbaru ke Terlama)
             combinedPosts.sort((a, b) => new Date(b.published) - new Date(a.published));
             
-            // Simpan di variabel global
             allCombinedPosts = combinedPosts;
             
             console.log(`Total ${allCombinedPosts.length} postingan dimuat dan digabungkan.`);
@@ -107,13 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('latest-post-container');
         if (!container) return;
         
-        // Tampilkan placeholder di awal
         if (allCombinedPosts.length === 0) {
             container.innerHTML = createLatestPostPlaceholder();
             return;
         }
         
-        // Ambil postingan paling terbaru secara keseluruhan dari data gabungan
         const overallLatestPost = allCombinedPosts[0];
         
         if (overallLatestPost) {
@@ -135,13 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const posts = allCombinedPosts;
     const labelMap = new Map();
     
-    // Iterasi untuk mencari postingan paling LAMA untuk setiap label
     posts.forEach(post => {
         if (post.labels) {
             post.labels.forEach(label => {
-                // 👇 PERUBAHANNYA CUMA DI SINI 👇
-                // Hapus `if`, biarkan dia menimpa terus menerus.
-                // Data terakhir yang masuk adalah dari post terlama.
                 labelMap.set(label, post);
             });
         }
@@ -154,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Tampilkan hanya 8 kategori teratas (atau sesuai kebutuhan)
     const topCategories = categories.slice(0, 8);
     
     container.innerHTML = topCategories.map(([label, post]) => createCategoryCard(post, label)).join('');
@@ -163,18 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
     /* --- INISIALISASI --- */
     
     async function initializeHomePage() {
-        // Tampilkan placeholder saat memuat data
         document.getElementById('latest-post-container').innerHTML = createLatestPostPlaceholder();
         document.getElementById('category-list-container').innerHTML = createCategoryListPlaceholder(8);
         
-        // 1. Muat dan gabungkan data di awal
         await loadAndCombineAllDataForHome();
         
-        // 2. Render komponen menggunakan data yang sudah siap
         renderLatestPost();
         renderCategoryList();
         
-        // (Fitur pencarian di luar scope file ini)
     }
     
     initializeHomePage();

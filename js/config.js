@@ -11,14 +11,12 @@ const firebaseConfig = {
 
 const gapiConfig = {
   apiKey: firebaseConfig.apiKey, 
-  
   clientId: '162356562012-ts06rfqmcajg8v88qop424kqq3cic4c3.apps.googleusercontent.com',
   discoveryDocs: ["https://blogger.googleapis.com/$discovery/rest?version=v3"],
   scope: "https://www.googleapis.com/auth/blogger", 
 };
 
 const config = {
-
   apiKey: gapiConfig.apiKey,
   blogId: '1753829636995064210',
   

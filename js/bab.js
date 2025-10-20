@@ -1,7 +1,3 @@
-// =========================================================================
-// bab.js - Script untuk Halaman Daftar Bab (bab.html)
-// =========================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
     
     let allCombinedPosts = [];
@@ -13,9 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /* --- FUNGSI PAGING LINTAS BLOG --- */
 
-    /**
-     * Mengambil SEMUA postingan dengan LABEL tertentu dari satu Blog ID menggunakan Paging.
-     */
     async function fetchAllPostsByLabel(blogId, apiKey, label) {
         let allPosts = [];
         let nextPageToken = null;
@@ -74,11 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.innerHTML = '<p class="info-text">Tidak ada bab ditemukan di kategori ini.</p>';
             return;
         }
-
-        // posts sudah diurutkan tertua ke terbaru (Bab 1, 2, 3...)
         let chapterHtml = '';
         posts.forEach((post, index) => {
-            // Index + 1 sebagai nomor bab (asumsi urutan publikasi = urutan bab)
+            
             const chapterNumber = index + 1; 
             const publishedDate = new Date(post.published).toLocaleDateString('id-ID', {
                 day: '2-digit', month: 'short', year: 'numeric'
@@ -112,22 +103,20 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.innerHTML = `<p class="info-text loading">${loadingText}</p>`;
 
         try {
-            // 1. Buat promises untuk fetch SEMUA postingan dengan label dari SETIAP blog ID (dengan Paging)
+            
             const fetchPromises = config.blogIds.map(blogId => 
                 fetchAllPostsByLabel(blogId, config.apiKey, label)
             );
-
+            
             const allPostsArrays = await Promise.all(fetchPromises);
             
-            // 2. Gabungkan SEMUA postingan dari SEMUA blog
             let labelPosts = allPostsArrays.flat().filter(post => post);
-            
-            // 3. Urutkan secara kronologis (Bab 1, Bab 2, dst)
-            labelPosts.sort((a, b) => new Date(a.published) - new Date(b.published)); 
 
+            labelPosts.sort((a, b) => new Date(a.published) - new Date(b.published)); 
+            
             if (labelPosts.length > 0) {
-                 // Ambil post terbaru (terakhir di array) untuk header
-                 const latestPost = labelPosts[labelPosts.length - 1]; 
+                
+                const latestPost = labelPosts[labelPosts.length - 1]; 
                  renderHeader(latestPost, labelPosts.length); 
                  renderChapterList(labelPosts);
             } else {
