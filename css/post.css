@@ -1,67 +1,342 @@
+/* ======================================================= */
+/* ==       STYLESHEET LENGKAP - HALAMAN POST           == */
+/* ======================================================= */
+
 /* --- 1. Loader, Tata Letak & Header --- */
-.loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(var(--bg-primary-rgb), 0.85); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: var(--z-loading); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-primary); transition: opacity 0.3s ease; opacity: 1; }
-.loader-overlay.hidden { opacity: 0; pointer-events: none; }
-.spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--bg-primary-rgb), 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: var(--z-loading);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    transition: opacity 0.3s ease;
+    opacity: 1;
+}
 
-.app-main-content { padding-top: var(--header-height); }
+.loader-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
 
-.main-header { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--padding-md); position: sticky; top: 0; z-index: 100; background: rgba(var(--bg-primary-rgb), 0.7); backdrop-filter: blur(20px) saturate(170%); -webkit-backdrop-filter: blur(20px) saturate(170%); border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2); }
-.main-header-left, .main-header-right { display: flex; align-items: center; gap: var(--padding-sm); }
-.main-title { font-size: 1.1rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
-.mobile-menu-toggle { background: transparent; border: none; color: var(--text-primary); font-size: 1.3rem; cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s ease; text-decoration: none; }
-.mobile-menu-toggle:hover { background-color: var(--interactive-hover-bg); }
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.app-main-content {
+    padding-top: var(--header-height);
+}
+
+.main-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--padding-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(var(--bg-primary-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2);
+}
+
+.main-header-left,
+.main-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-sm);
+}
+
+.main-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.mobile-menu-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: var(--interactive-hover-bg);
+}
 
 /* --- 2. Konten Postingan --- */
-.novel-detail-container { max-width: 720px; margin: 0 auto; padding: var(--padding-lg) var(--padding-md); }
-.post-body { font-family: var(--font-reading); font-size: 1.15rem; line-height: 1.8; color: var(--text-primary); }
-.post-body p { margin: 0 0 1.5em 0; }
-.post-body img { max-width: 100%; height: auto; border-radius: var(--border-radius-md); margin: var(--padding-md) 0; }
+.novel-detail-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--padding-lg) var(--padding-md);
+}
 
-/* --- 3. Meta, Share, & Navigasi Post --- */
-#post-meta-and-share-container, .post-navigation { max-width: 720px; margin: 0 auto; padding: var(--padding-lg) var(--padding-md); border-top: var(--border-style); }
-.post-meta-details { margin-bottom: var(--padding-lg); padding-bottom: var(--padding-md); border-bottom: var(--border-style); }
-.post-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--padding-sm) var(--padding-md); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
-.meta-item { display: inline-flex; align-items: center; gap: 6px; }
-.share-area h4 { font-weight: 500; margin: 0 0 var(--padding-md) 0; text-align: center; }
-.share-buttons { display: flex; justify-content: center; gap: var(--padding-md); }
-.share-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; text-decoration: none; color: var(--text-primary); background-color: var(--bg-secondary); border: var(--border-style); font-size: 1rem; transition: var(--transition-smooth); }
-.share-btn:hover { color: var(--accent-text); background-color: var(--accent-color); border-color: var(--accent-color); transform: translateY(-3px); }
-.post-navigation { display: flex; justify-content: space-between; gap: var(--padding-md); }
-.nav-button { flex: 1; text-decoration: none; padding: var(--padding-sm) var(--padding-md); border: var(--border-style); border-radius: var(--border-radius-md); color: var(--text-secondary); transition: var(--transition-smooth); }
-.nav-button:hover { border-color: var(--accent-color); transform: translateY(-3px); }
-.nav-button span { font-size: 0.8rem; text-transform: uppercase; }
-.nav-button .nav-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
-.nav-button.prev { text-align: left; }
-.nav-button.next { text-align: right; }
+.post-body {
+    font-family: var(--font-reading);
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.post-body p {
+    margin: 0 0 1.5em 0;
+}
+
+.post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius-md);
+    margin: var(--padding-md) 0;
+}
+
+/* === 3. Meta & Share (Digabung & Dirapikan) === */
+
+/* Kontainer utama (tanpa garis atas) */
+#post-meta-and-share-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--padding-lg) var(--padding-md);
+    border-top: var(--border-style);
+}
+
+/* Diubah menjadi flex container untuk menyatukan meta dan share */
+.post-meta-details {
+    display: flex;
+    flex-wrap: wrap; /* Agar bisa turun ke bawah di layar kecil */
+    justify-content: space-between; /* Meta di kiri, share di kanan */
+    align-items: center;
+    gap: var(--padding-md); /* Jarak jika share turun ke bawah */
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none; /* Garis pemisah dihapus */
+}
+
+/* Kelompok info meta (penulis, tanggal, dll) */
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Tetap di tengah jika hanya ada meta */
+    gap: var(--padding-sm) var(--padding-md);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Area Judul "Bagikan" Dihapus */
+.share-area h4 {
+    display: none;
+}
+
+/* Tombol Share (digabung ke kanan meta) */
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--padding-sm); /* Jarak antar ikon diperkecil */
+    flex-shrink: 0; /* Mencegah tombol menyusut */
+}
+
+/* Ikon Share Dibuat Lebih Kecil & Rapi */
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;  /* Ukuran diperkecil */
+    height: 34px; /* Ukuran diperkecil */
+    border-radius: 50%;
+    text-decoration: none;
+    color: var(--text-secondary); /* Warna disamakan dengan meta */
+    background-color: transparent;
+    border: 1px solid transparent;
+    font-size: 0.9rem; /* Ukuran ikon diperkecil */
+    transition: var(--transition-smooth);
+}
+
+.share-btn:hover {
+    color: var(--accent-text);
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-3px);
+}
+
 
 /* --- 4. Panel Samping (Kanan) --- */
-.tags-slide-panel { position: fixed; top: 0; right: 0; z-index: var(--z-panel); height: 100dvh; width: 100%; max-width: var(--sidebar-width); display: flex; flex-direction: column; background: rgba(var(--bg-primary-rgb), 0.7); backdrop-filter: blur(20px) saturate(170%); -webkit-backdrop-filter: blur(20px) saturate(170%); border-left: 1px solid rgba(var(--border-color-rgb), 0.2); box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6); transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.tags-slide-panel.is-open { transform: translateX(0); }
-.settings-panel-header { display: flex; justify-content: space-between; align-items: center; padding: var(--padding-md); border-bottom: 1px solid rgba(var(--border-color-rgb), 0.3); flex-shrink: 0; }
-.settings-panel-header h3 { font-size: 1.1rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.settings-panel-header button { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; line-height: 1; color: var(--text-primary); transition: color 0.2s ease, transform 0.2s ease; }
-.settings-panel-header button:hover { color: var(--accent-color); transform: rotate(90deg); }
-.tags-panel-body { flex-grow: 1; overflow-y: auto; padding: var(--padding-md); }
+.tags-slide-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: var(--z-panel);
+    height: 100dvh;
+    width: 100%;
+    max-width: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    background: rgba(var(--bg-primary-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    border-left: 1px solid rgba(var(--border-color-rgb), 0.2);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tags-slide-panel.is-open {
+    transform: translateX(0);
+}
+
+.settings-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--padding-md);
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.3);
+    flex-shrink: 0;
+}
+
+.settings-panel-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.settings-panel-header button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--text-primary);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.settings-panel-header button:hover {
+    color: var(--accent-color);
+    transform: rotate(90deg);
+}
+
+.tags-panel-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: var(--padding-md);
+}
 
 /* --- 5. Konten di Dalam Panel Samping --- */
-.tag-list-in-panel { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.tag-list-in-panel a { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-radius: var(--border-radius-md); text-decoration: none; color: var(--text-primary); background-color: var(--bg-secondary); transition: background-color 0.2s ease; }
-.tag-list-in-panel a:hover { background-color: var(--interactive-hover-bg); }
-.panel-post-list-container { display: flex; flex-direction: column; gap: 8px; }
-.panel-post-item { display: flex; align-items: center; gap: 15px; padding: 10px; text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; transition: all 0.2s ease; }
-.panel-post-item:hover { background-color: var(--interactive-hover-bg); border-color: var(--border-color); }
-.panel-post-item img { width: 50px; height: 75px; object-fit: cover; border-radius: var(--border-radius-sm); flex-shrink: 0; background-color: var(--border-color); }
-.panel-post-item-title { font-size: 1rem; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.tag-list-in-panel {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-/* === 6. PERBAIKAN: Skeleton untuk Panel Samping === */
-@keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
+.tag-list-in-panel a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: var(--border-radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    transition: background-color 0.2s ease;
+}
+
+.tag-list-in-panel a:hover {
+    background-color: var(--interactive-hover-bg);
+}
+
+.panel-post-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.panel-post-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.panel-post-item:hover {
+    background-color: var(--interactive-hover-bg);
+    border-color: var(--border-color);
+}
+
+.panel-post-item img {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: var(--border-radius-sm);
+    flex-shrink: 0;
+    background-color: var(--border-color);
+}
+
+.panel-post-item-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* --- 6. Skeleton untuk Panel Samping --- */
+@keyframes shimmer {
+    0% { background-position: -800px 0; }
+    100% { background-position: 800px 0; }
+}
 
 .panel-post-item.skeleton {
     pointer-events: none;
 }
 
-/* Placeholder untuk gambar */
 .panel-post-item.skeleton .skeleton-img {
     width: 50px;
     height: 75px;
@@ -74,16 +349,14 @@
     background-image: linear-gradient(to right, var(--border-color) 0%, var(--bg-secondary) 20%, var(--border-color) 40%, var(--border-color) 100%);
 }
 
-/* Kontainer untuk placeholder teks */
 .panel-post-item.skeleton .panel-post-item-title {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 10px; /* Jarak antar baris teks palsu */
+    gap: 10px;
 }
 
-/* Buat 2 baris teks palsu */
 .panel-post-item.skeleton .panel-post-item-title::before,
 .panel-post-item.skeleton .panel-post-item-title::after {
     content: '';
@@ -97,6 +370,16 @@
     background-image: linear-gradient(to right, var(--border-color) 0%, var(--bg-secondary) 20%, var(--border-color) 40%, var(--border-color) 100%);
 }
 
-/* Atur panjang baris teks palsu */
-.panel-post-item.skeleton .panel-post-item-title::before { width: 90%; }
-.panel-post-item.skeleton .panel-post-item-title::after { width: 60%; }
+.panel-post-item.skeleton .panel-post-item-title::before {
+    width: 90%;
+}
+
+.panel-post-item.skeleton .panel-post-item-title::after {
+    width: 60%;
+}
+
+ @media (min-width: 600px) {
+    .post-meta {
+        justify-content: flex-start;
+    }
+}
