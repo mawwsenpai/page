@@ -91,47 +91,58 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /* --- INSIALISASI HALAMAN BAB --- */
 
-    async function initializeBabPage() {
-        const label = getLabelFromURL();
-        if (!label) {
-            titleElement.textContent = "Kategori Tidak Ditemukan";
-            listContainer.innerHTML = '<p class="info-text">Label kategori tidak ada di URL.</p>';
-            return;
+    // GANTI FUNGSI LAMA DENGAN INI DI DALAM bab.js
+async function initializeBabPage() {
+    const label = getLabelFromURL();
+    
+    if (!label) {
+        titleElement.textContent = "Kategori Tidak Ditemukan";
+        listContainer.innerHTML = '<p class="info-text">Label kategori tidak ada di URL.</p>';
+        return;
+    }
+    
+    // --- TAMPILKAN SKELETON ---
+    // 1. Terapkan kelas skeleton ke elemen yang ada
+    headerElement.classList.add('skeleton');
+    
+    // 2. Buat HTML untuk daftar bab skeleton
+    let skeletonListHTML = '';
+    for (let i = 0; i < 10; i++) { // Buat 10 item placeholder
+        skeletonListHTML += '<a class="chapter-item skeleton"></a>';
+    }
+    listContainer.innerHTML = skeletonListHTML;
+    // --- AKHIR BAGIAN SKELETON ---
+    
+    try {
+        const fetchPromises = config.blogIds.map(blogId =>
+            fetchAllPostsByLabel(blogId, config.apiKey, label)
+        );
+        
+        const allPostsArrays = await Promise.all(fetchPromises);
+        let labelPosts = allPostsArrays.flat().filter(post => post);
+        
+        labelPosts.sort((a, b) => new Date(a.published) - new Date(b.published));
+        
+        // Hapus kelas skeleton sebelum menampilkan data asli
+        headerElement.classList.remove('skeleton');
+        
+        if (labelPosts.length > 0) {
+            const latestPost = labelPosts[labelPosts.length - 1];
+            renderHeader(latestPost, labelPosts.length);
+            renderChapterList(labelPosts);
+        } else {
+            titleElement.textContent = label;
+            infoElement.textContent = "0 Bab";
+            renderChapterList([]);
         }
         
-        const loadingText = `Memuat semua Bab ${label} dari ${config.blogIds.length} blog...`;
-        listContainer.innerHTML = `<p class="info-text loading">${loadingText}</p>`;
-
-        try {
-            
-            const fetchPromises = config.blogIds.map(blogId => 
-                fetchAllPostsByLabel(blogId, config.apiKey, label)
-            );
-            
-            const allPostsArrays = await Promise.all(fetchPromises);
-            
-            let labelPosts = allPostsArrays.flat().filter(post => post);
-
-            labelPosts.sort((a, b) => new Date(a.published) - new Date(b.published)); 
-            
-            if (labelPosts.length > 0) {
-                
-                const latestPost = labelPosts[labelPosts.length - 1]; 
-                 renderHeader(latestPost, labelPosts.length); 
-                 renderChapterList(labelPosts);
-            } else {
-                titleElement.textContent = label;
-                infoElement.textContent = "0 Bab";
-                renderChapterList([]);
-            }
-            
-        } catch (error) {
-            console.error("Gagal mengambil data bab:", error);
-            titleElement.textContent = "Gagal Memuat";
-            listContainer.innerHTML = '<p class="info-text">Terjadi kesalahan saat mengambil data.</p>';
-        }
-
+    } catch (error) {
+        console.error("Gagal mengambil data bab:", error);
+        headerElement.classList.remove('skeleton'); // Pastikan skeleton dihapus jika error
+        titleElement.textContent = "Gagal Memuat";
+        listContainer.innerHTML = '<p class="info-text">Terjadi kesalahan saat mengambil data.</p>';
     }
+}
 
     initializeBabPage();
 });

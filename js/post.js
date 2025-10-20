@@ -183,7 +183,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function loadPostsForTag(label) {
         const decodedLabel = decodeURIComponent(label);
-        if (sidePanel.update) sidePanel.update(decodedLabel, '<div class="spinner" style="margin: 2rem auto;"></div>');
+        if (sidePanel.update) {
+    let skeletonHTML = '<div class="panel-post-list-container">';
+    for (let i = 0; i < 7; i++) { // Buat 7 baris placeholder
+        skeletonHTML += `
+            <a class="panel-post-item skeleton">
+                <div class="skeleton-img"></div>
+                <span class="panel-post-item-title"></span>
+            </a>
+        `;
+    }
+    skeletonHTML += '</div>';
+    sidePanel.update(decodedLabel, skeletonHTML);
+        }
         
         try {
             const fetchPromises = config.blogIds.map(blogId => 

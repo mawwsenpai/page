@@ -33,14 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNGSI LOADING & UI ---
 
     function showInPageLoading() {
-        resultsContainer.innerHTML = `
-            <div class="in-page-loading">
-                <div class="spinner-small"></div>
-                <p>Mencari novel..</p>
+    // Buat HTML untuk satu kartu skeleton
+    const skeletonCardHTML = `
+        <a class="novel-list-item skeleton">
+            <div class="novel-cover">
+                <img src="" alt=""/>
             </div>
-        `;
-        searchInput.disabled = true;
-    }
+            <div class="novel-info">
+                <h3 class="novel-title"></h3>
+                <p class="novel-meta"></p>
+                <p class="novel-status"></p>
+            </div>
+        </a>
+    `;
+    
+    // Ulangi 5 kali untuk membuat 5 kartu placeholder
+    resultsContainer.innerHTML = skeletonCardHTML.repeat(5);
+    
+    searchInput.disabled = true;
+}
 
     function hideInPageLoading() {
         searchInput.disabled = false;

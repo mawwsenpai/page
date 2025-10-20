@@ -1,0 +1,134 @@
+/* ======================================================= */
+/* ==       STYLESHEET LENGKAP - HALAMAN UTAMA          == */
+/* ==              (Versi Final & Rapi)                 == */
+/* ======================================================= */
+
+/* --- Tata Letak Utama --- */
+.app-main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.blog-section {
+    padding: var(--padding-lg) var(--padding-md);
+}
+
+.section-title {
+    font-size: clamp(1.4rem, 4vw, 1.6rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--padding-md);
+    padding-bottom: var(--padding-sm);
+    border-bottom: 3px solid var(--accent-color);
+    display: inline-block;
+}
+
+/* --- Header Utama --- */
+.main-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--padding-md);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.main-header-left,
+.main-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-sm);
+}
+
+.main-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.mobile-menu-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: var(--interactive-hover-bg);
+}
+
+/* --- Panel Sidebar --- */
+.app-sidebar {
+    position: fixed; top: 0; left: 0; z-index: var(--z-panel); height: 100dvh;
+    width: 100%; max-width: var(--sidebar-width); display: flex; flex-direction: column;
+    background: rgba(var(--bg-primary-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    border-right: 1px solid rgba(var(--border-color-rgb), 0.2);
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.6);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar.is-open { transform: translateX(0); }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: var(--padding-md); border-bottom: 1px solid rgba(var(--border-color-rgb), 0.3); flex-shrink: 0; }
+.sidebar-title { margin: 0; font-size: 1.2rem; font-weight: 600; }
+.sidebar-version { font-size: 0.75rem; color: var(--text-secondary); }
+.modal-close-btn { background: transparent; border: none; cursor: pointer; font-size: 2.2rem; line-height: 1; color: var(--text-primary); transition: color 0.2s ease, transform 0.2s ease; }
+.modal-close-btn:hover { color: var(--accent-color); transform: rotate(90deg); }
+.sidebar-content { flex-grow: 1; overflow-y: auto; padding: var(--padding-sm) var(--padding-md) var(--padding-lg); }
+.control-group { margin-bottom: var(--padding-lg); padding-bottom: var(--padding-md); border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2); }
+.control-group:last-of-type { border-bottom: none; }
+.control-group-title { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin: 0 0 var(--padding-md) 0; text-transform: uppercase; letter-spacing: 1px; }
+.nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-radius: var(--border-radius-md); text-decoration: none; color: var(--text-primary); font-weight: 500; transition: all 0.2s ease; }
+.nav-link:hover { background-color: var(--interactive-hover-bg); }
+.nav-link.active { background-color: var(--interactive-active-bg); color: var(--accent-color); font-weight: 700; }
+.setting-group { margin-bottom: var(--padding-lg); }
+.setting-group-title { display: block; margin-bottom: 0.75rem; font-size: 1rem; font-weight: 500; }
+.options-container.scrollable-setting { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: none; }
+.options-container.scrollable-setting::-webkit-scrollbar { display: none; }
+.option-btn { display: block; padding: 8px 16px; border: 1px solid var(--border-color); background-color: rgba(0,0,0,0.2); border-radius: 20px; white-space: nowrap; font-size: 0.9em; transition: all 0.2s ease; cursor: pointer; color: var(--text-primary); }
+.option-btn:hover { border-color: var(--text-primary); background-color: rgba(0,0,0,0.4); }
+.option-btn.active { background-color: var(--accent-color); border-color: var(--accent-color); color: var(--accent-text); font-weight: 600; }
+#system-font-size-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; background: var(--border-color); border-radius: 5px; outline: none; }
+#system-font-size-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--accent-color); cursor: pointer; border-radius: 50%; border: 3px solid #fff; box-shadow: var(--shadow-sm); }
+#system-font-size-slider::-moz-range-thumb { width: 20px; height: 20px; background: var(--accent-color); cursor: pointer; border-radius: 50%; border: 3px solid #fff; box-shadow: var(--shadow-sm); }
+.font-size-value { font-weight: 600; width: 40px; text-align: right; }
+
+/* --- Kartu Konten --- */
+.latest-post-card, .category-card { background-color: var(--bg-secondary); border: 1px solid transparent; overflow: hidden; text-decoration: none; position: relative; -webkit-mask-image: -webkit-radial-gradient(white, black); border-radius: 16px; transition: transform 0.3s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s cubic-bezier(.25,.8,.25,1); }
+.latest-post-card:hover, .category-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-8px); }
+.latest-post-cover, .category-card-cover { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.latest-post-cover img, .category-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.latest-post-card:hover img, .category-card:hover img { transform: scale(1.05); }
+.latest-post-card::before, .category-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.8) 100%); transition: background 0.3s ease; }
+.latest-post-info, .category-card-title { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; }
+.latest-post-info { padding: var(--padding-lg); }
+.latest-post-title { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 700; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8); line-height: 1.3; }
+.category-card-title { padding: 1rem 0.75rem; font-size: 0.9rem; font-weight: 600; color: #fff; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- Kategori Scroll Horizontal --- */
+.latest-post-card { display: block; aspect-ratio: 16 / 9; }
+.category-list-grid { display: flex; overflow-x: auto; flex-wrap: nowrap; gap: var(--padding-sm); padding: 4px var(--padding-md) 12px var(--padding-md); margin: 0 calc(-1 * var(--padding-md)); scrollbar-width: none; }
+.category-list-grid::-webkit-scrollbar { display: none; }
+.category-card { width: 110px; flex-shrink: 0; aspect-ratio: 2 / 3; display: block; }
+
+/* --- Efek Loading Skeleton --- */
+@keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
+.skeleton { background-color: var(--bg-secondary); background-image: linear-gradient(to right, var(--bg-secondary) 0%, var(--border-color) 20%, var(--bg-secondary) 40%, var(--bg-secondary) 100%); background-repeat: no-repeat; background-size: 1600px 100%; animation: shimmer 2s infinite linear; pointer-events: none; }
+.skeleton img { visibility: hidden; }
+.skeleton::before { background: none !important; }
+
+/* --- Desain Responsif --- */
+@media (min-width: 640px) { .category-card { width: 120px; } }
+@media (min-width: 768px) { .category-card { width: 130px; } }

@@ -1,0 +1,137 @@
+/* ======================================================= */
+/* ==       STYLESHEET LENGKAP - HALAMAN PENCARIAN      == */
+/* ==       (Perbaikan Final: Header 100% Rapi)         == */
+/* ======================================================= */
+
+/* --- 1. Tata Letak Utama & Header Sticky --- */
+.app-main-content {
+    padding-top: calc(var(--header-height) + var(--padding-md));
+    padding-bottom: var(--padding-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* === BAGIAN HEADER YANG DIPERBAIKI TOTAL === */
+.main-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center; /* Menengahkan semua item di dalamnya secara vertikal */
+    padding: 0 var(--padding-md); /* Jarak dari tepi layar */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    background: rgba(var(--bg-primary-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2);
+}
+
+.main-header-left {
+    display: flex;
+    align-items: center; /* Pastikan item di dalamnya juga terpusat vertikal */
+    gap: var(--padding-sm); /* Jarak antara tombol kembali dan input */
+    width: 100%;
+}
+
+/* Tombol Kembali (dibuat sangat spesifik) */
+.mobile-menu-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0; /* Hapus padding default */
+
+    /* Ukuran presisi */
+    width: 44px;
+    height: 44px;
+
+    /* Paksa ikon di dalamnya untuk selalu di tengah */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+.mobile-menu-toggle i {
+    font-size: 1.3rem; /* Atur ukuran ikon secara spesifik */
+}
+.mobile-menu-toggle:hover {
+    background-color: var(--interactive-hover-bg);
+}
+
+/* --- 2. Input Pencarian (dibuat sangat spesifik) --- */
+.search-input-wrapper-header {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    height: 44px; /* Samakan tingginya dengan tombol */
+    background-color: rgba(var(--bg-secondary-rgb), 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0 var(--padding-md);
+    transition: border-color 0.3s ease;
+}
+
+.search-input-wrapper-header:focus-within {
+    border-color: var(--accent-color);
+}
+
+.search-icon {
+    color: var(--text-secondary);
+    margin-right: var(--padding-sm);
+}
+
+.search-input-field {
+    width: 100%;
+    height: 100%;
+    padding: 0; /* Hapus padding default input */
+    margin: 0; /* Hapus margin default input */
+    border: none;
+    background: transparent;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: var(--font-ui);
+}
+
+.search-input-field::placeholder {
+    color: var(--text-secondary);
+}
+/* === AKHIR BAGIAN HEADER === */
+
+/* --- Sisa Kode (Biarkan Sama) --- */
+
+/* --- 3. Konten & Pesan Status --- */
+.search-results-grid { padding: var(--padding-md); }
+.info-text { text-align: center; padding: var(--padding-xl) 0; color: var(--text-secondary); font-size: 1.1rem; }
+.in-page-loading { display: flex; align-items: center; justify-content: center; padding: var(--padding-xl) 0; color: var(--text-secondary); gap: 15px; font-size: 1.1rem; }
+.spinner-small { width: 24px; height: 24px; border: 3px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- 4. Tampilan Hasil Pencarian --- */
+.search-results-grid { display: flex; flex-direction: column; gap: var(--padding-sm); }
+.novel-list-item { display: flex; gap: var(--padding-md); padding: var(--padding-sm); background-color: var(--bg-secondary); border-radius: var(--border-radius-md); text-decoration: none; border: 1px solid transparent; transition: transform 0.3s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s cubic-bezier(.25,.8,.25,1), border-color 0.3s ease; }
+.novel-list-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--accent-color); }
+.novel-cover { width: 80px; flex-shrink: 0; aspect-ratio: 2 / 3; border-radius: var(--border-radius-sm); overflow: hidden; background-color: var(--border-color); }
+.novel-cover img { width: 100%; height: 100%; object-fit: cover; }
+.novel-info { flex-grow: 1; padding-top: var(--padding-xs); }
+.novel-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 8px 0; line-height: 1.4; }
+.novel-meta { font-size: 0.8rem; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 8px 0; padding: 0; }
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.novel-status { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0; font-style: italic; }
+
+/* --- 5. Efek Loading Skeleton --- */
+@keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
+.novel-list-item.skeleton { pointer-events: none; background-color: var(--bg-secondary); }
+.novel-list-item.skeleton .novel-cover { background-color: var(--border-color); animation: shimmer 2s infinite linear; background-size: 800px 100%; background-image: linear-gradient(to right, var(--border-color) 0%, var(--bg-secondary) 20%, var(--border-color) 40%, var(--border-color) 100%); }
+.novel-list-item.skeleton img, .novel-list-item.skeleton h3, .novel-list-item.skeleton p { visibility: hidden; }
+.novel-list-item.skeleton .novel-title::after, .novel-list-item.skeleton .novel-meta::after, .novel-list-item.skeleton .novel-status::after { content: ''; display: block; background-color: var(--border-color); border-radius: var(--border-radius-sm); animation: shimmer 2s infinite linear; background-repeat: no-repeat; background-size: 1600px 100%; background-image: linear-gradient(to right, var(--border-color) 0%, var(--bg-secondary) 20%, var(--border-color) 40%, var(--border-color) 100%); }
+.novel-list-item.skeleton .novel-title::after { width: 80%; height: 1.4rem; margin-bottom: 8px; }
+.novel-list-item.skeleton .novel-meta::after { width: 60%; height: 0.8rem; margin-bottom: 8px; }
+.novel-list-item.skeleton .novel-status::after { width: 40%; height: 0.9rem; }
+
+/* --- 6. Desain Responsif --- */
+@media (min-width: 768px) { .search-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--padding-md); } }

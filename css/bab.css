@@ -1,0 +1,177 @@
+/* ======================================================= */
+/* ==       STYLESHEET LENGKAP - HALAMAN DAFTAR BAB     == */
+/* ==          (Perbaikan Tombol Kembali)               == */
+/* ======================================================= */
+
+/* --- 1. Tata Letak Utama & Header Sticky --- */
+.app-main-content {
+    /* Padding atas untuk memberi ruang di bawah header sticky */
+    padding-top: var(--header-height);
+}
+
+.main-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--padding-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    /* Efek Glassmorphism agar konsisten */
+    background: rgba(var(--bg-primary-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.2);
+}
+
+.main-header-left, .main-header-right { display: flex; align-items: center; gap: var(--padding-sm); }
+.main-title { font-size: 1.25rem; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mobile-menu-toggle { background: transparent; border: none; color: var(--text-primary); font-size: 1.3rem; cursor: pointer; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s ease; }
+.mobile-menu-toggle:hover { background-color: var(--interactive-hover-bg); }
+
+
+/* --- 2. Header Bab (Immersive Banner) --- */
+
+/* Tombol Kembali di Dalam Banner (Yang Hilang) */
+.back-button-wrapper {
+    position: absolute;
+    /* Posisikan sedikit di bawah header sticky */
+    top: calc(var(--header-height) + var(--padding-sm)); 
+    left: var(--padding-md);
+    z-index: 70; /* Pastikan di atas gambar banner */
+}
+
+.back-button {
+    background: rgba(0,0,0,0.3);
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+.back-button:hover {
+    background-color: rgba(0,0,0,0.6);
+    transform: scale(1.1);
+}
+
+.chapter-header {
+    position: relative;
+    height: 50vh;
+    max-height: 350px;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.chapter-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(0deg, var(--bg-primary) 0%, rgba(var(--bg-primary-rgb), 0.1) 100%);
+    z-index: 1;
+}
+
+.chapter-header-content {
+    position: relative;
+    z-index: 2;
+    padding: var(--padding-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#chapter-title {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#chapter-info {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 600px;
+}
+
+
+/* --- 3. Daftar Bab --- */
+.chapter-list-container {
+    padding: 0 var(--padding-md);
+    margin-top: -50px;
+    position: relative;
+    z-index: 3;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chapter-item {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-md);
+    padding: var(--padding-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.chapter-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+}
+
+.chapter-number { font-size: 1rem; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+.chapter-item-details { flex-grow: 1; overflow: hidden; }
+.chapter-item-title { font-size: 1.1rem; font-weight: 500; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-item-date { font-size: 0.8rem; color: var(--text-secondary); margin: 4px 0 0; display: flex; align-items: center; gap: 6px; }
+.chapter-item .fa-chevron-right { color: var(--text-secondary); }
+
+
+/* --- 4. Efek Loading Skeleton --- */
+@keyframes shimmer { 0% { background-position: -800px 0; } 100% { background-position: 800px 0; } }
+
+/* Skeleton untuk Header Bab */
+.chapter-header.skeleton {
+    background-color: var(--bg-secondary);
+    animation: shimmer 2s infinite linear;
+    background-image: linear-gradient(to right, var(--bg-secondary) 0%, var(--border-color) 20%, var(--bg-secondary) 40%, var(--bg-secondary) 100%);
+    background-size: 1600px 100%;
+}
+.chapter-header.skeleton::before, .chapter-header.skeleton .back-button-wrapper { display: none; }
+.chapter-header.skeleton h1, .chapter-header.skeleton p { visibility: hidden; }
+.chapter-header.skeleton .chapter-header-content::before, .chapter-header.skeleton .chapter-header-content::after { content: ''; display: block; background-color: var(--border-color); border-radius: var(--border-radius-sm); }
+.chapter-header.skeleton .chapter-header-content::before { width: 60%; height: 2.2rem; margin-bottom: var(--padding-sm); }
+.chapter-header.skeleton .chapter-header-content::after { width: 80%; height: 1rem; }
+
+/* Skeleton untuk Daftar Bab */
+.chapter-item.skeleton {
+    pointer-events: none;
+    background-color: var(--bg-secondary);
+    height: 78px; /* Beri tinggi tetap agar tidak loncat */
+    animation: shimmer 2s infinite linear;
+    background-image: linear-gradient(to right, var(--bg-secondary) 0%, var(--border-color) 20%, var(--bg-secondary) 40%, var(--bg-secondary) 100%);
+    background-size: 1600px 100%;
+}
