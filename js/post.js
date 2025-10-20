@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('back-button');
     const navContainer = document.getElementById('post-navigation-container');
     const panelContainer = document.getElementById('tags-panel-container');
-
+    
+    let isSwipeActive = false;
     let prevPostUrl = null;
     let nextPostUrl = null;
     
@@ -99,8 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPostMetaAndShare(post, foundBlog) {
         const container = document.getElementById('post-meta-and-share-container');
         if (!container) return;
-        
-        // Menggunakan detail blog yang terambil dari fetch tambahan
+
         const blogName = foundBlog ? foundBlog.name : "Nama Blog Tidak Ditemukan"; 
         const authorName = post.author.displayName || "Penulis";
         const publishedDate = new Date(post.published).toLocaleDateString('id-ID', {
@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let foundPost = null;
         let sourceBlogId = null;
 
-        // 1. ITERASI MENCARI POSTINGAN
         for (const blogId of config.blogIds) {
             const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts/${postId}?key=${config.apiKey}`;
             
@@ -245,8 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             contentContainer.innerHTML = `<p class="info-text">Postingan dengan ID: ${postId} tidak ditemukan di seluruh sumber blog.</p>`;
             return;
         }
-        
-        // 2. FETCH TAMBAHAN UNTUK DETAIL BLOG
         let foundBlog = null;
         if (sourceBlogId) {
             try {
@@ -267,8 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
             titleHeader.textContent = post.title; 
             contentContainer.innerHTML = `<div class="post-body">${post.content}</div>`;
 
-            // Kirim detail post DAN detail blog
             renderPostMetaAndShare(post, foundBlog); 
+            setupEndOfPostObserver();
 
             const tagsContent = createPostTagsContent(post.labels);
             if (sidePanel.update) sidePanel.update("Novel Sedang dibaca", tagsContent);
@@ -282,7 +279,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loader) setTimeout(() => loader.classList.add('hidden'), 300);
         }
     }
+    function setupEndOfPostObserver() {
+    const targetElement = document.getElementById('post-navigation-container');
+    if (!targetElement) return;
+    
+    const options = {
+        root: null, 
+        rootMargin: '0px',
+        threshold: 0.1 
+    };
+    
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
 
+                toggleSwipeListeners(true);
+            } else {
+            
+                toggleSwipeListeners(false);
+            }
+        });
+    }, options);
+    
+    observer.observe(targetElement); 
+}
     function createPostTagsContent(labels) {
         if (!labels || labels.length === 0) return '<p class="info-text">Postingan ini tidak memiliki tag.</p>';
         let listHtml = '<ul class="tag-list-in-panel">';
@@ -308,11 +328,33 @@ document.addEventListener('DOMContentLoaded', () => {
           if (prevPostUrl) window.location.href = prevPostUrl;
         }
     }
+    
+    function toggleSwipeListeners(active) {
+    if (active) {
+        if (!isSwipeActive) {
+            swipeArea.addEventListener('touchstart', touchStartHandler, { passive: true });
+            swipeArea.addEventListener('touchend', touchEndHandler);
+            swipeArea.addEventListener('mousedown', mouseDownHandler);
+            swipeArea.addEventListener('mouseup', mouseUpHandler);
+            isSwipeActive = true;
+            
+            }
+    } else {
+        if (isSwipeActive) {
+            swipeArea.removeEventListener('touchstart', touchStartHandler);
+            swipeArea.removeEventListener('touchend', touchEndHandler);
+            swipeArea.removeEventListener('mousedown', mouseDownHandler);
+            swipeArea.removeEventListener('mouseup', mouseUpHandler);
+            isSwipeActive = false;
+            }
+    }
+}
 
-    swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
-    swipeArea.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); });
-    swipeArea.addEventListener('mousedown', e => { touchstartX = e.screenX; });
-    swipeArea.addEventListener('mouseup', e => { touchendX = e.screenX; handleGesture(); });
+const touchStartHandler = (e) => { touchstartX = e.changedTouches[0].screenX; };
+const touchEndHandler = (e) => { touchendX = e.changedTouches[0].screenX; handleGesture(); };
+const mouseDownHandler = (e) => { touchstartX = e.screenX; };
+const mouseUpHandler = (e) => { touchendX = e.screenX; handleGesture(); };
+
 
     function initializePostPage() {
         setupBackButton();
