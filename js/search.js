@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (backButton) {
         backButton.addEventListener('click', (e) => {
             e.preventDefault();
-            history.back();
+            window.location.href = 'index.html';
         });
     }
 
